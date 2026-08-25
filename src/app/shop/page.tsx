@@ -1,49 +1,53 @@
 import { listProducts, listCategories } from "@/lib/catalog";
+import { ProductCard } from "@/components/ProductCard";
 import type { Metadata } from "next";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Shop All — 0Seven",
+  title: "Shop — 0Seven",
   description: "Browse all 0Seven faith-inspired apparel.",
 };
 
 export default async function ShopPage() {
   const categories = await listCategories();
-  const products = await listProducts();
+  const allProducts = await listProducts();
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">All Products</h1>
-        
-        <nav className="flex flex-wrap gap-2 mb-10">
-          <a href="/shop">
-            <Badge variant="accent" className="px-4 py-1.5 text-sm cursor-pointer">All</Badge>
-          </a>
-          {categories.map((cat) => (
-            <a key={cat.slug} href={`/shop/${cat.slug}`}>
-              <Badge variant="primary" className="px-4 py-1.5 text-sm cursor-pointer bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] border border-[var(--color-border)]">{cat.name}</Badge>
-            </a>
-          ))}
-        </nav>
+    <div className="max-w-[1200px] mx-auto py-8 px-6 min-h-screen">
+      <h1 className="text-[var(--color-text-primary)] text-2xl font-bold mb-8">
+        Shop
+      </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((p) => (
-            <a key={p.id} href={`/shop/${p.categorySlug}/${p.slug}`} className="block">
-              <Card variant="default" padding="md" className="hover:border-[var(--color-accent)] transition-colors h-full flex flex-col justify-between group">
-                <div>
-                  <div className="bg-[var(--color-surface-raised)] aspect-square w-full rounded-md mb-4 flex items-center justify-center text-[var(--color-text-muted)] group-hover:bg-[var(--color-surface)] transition-colors">
-                    Image
-                  </div>
-                  <h3 className="font-semibold text-lg">{p.name}</h3>
-                </div>
-                <p className="text-[var(--color-text-secondary)] mt-2">₦{p.variants[0]?.priceKobo / 100}</p>
-              </Card>
-            </a>
-          ))}
-        </div>
-      </div>
-    </main>
+      {categories.map((cat) => {
+        const products = allProducts.filter(
+          (p) => p.categorySlug === cat.slug
+        );
+        if (products.length === 0) return null;
+
+        return (
+          <section key={cat.slug} className="mb-10">
+            {/* Section header */}
+            <div className="flex justify-between items-center px-4 py-2.5 bg-[var(--color-accent)] rounded-t-md mb-[1px]">
+              <h2 className="text-[0.95rem] font-bold text-[var(--color-accent-fg)] m-0">
+                {cat.name}
+              </h2>
+              <Link
+                href={`/shop/${cat.slug}`}
+                className="text-[0.78rem] text-[var(--color-accent-fg)] no-underline font-semibold opacity-90 hover:opacity-100 transition-opacity"
+              >
+                See All →
+              </Link>
+            </div>
+
+            {/* Horizontal scroll row */}
+            <div className="flex gap-3 overflow-x-auto p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-b-md no-scrollbar">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
   );
 }

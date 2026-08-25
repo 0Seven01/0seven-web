@@ -36,3 +36,12 @@ body {
 @media (max-width: 767px) {
   .hidden-mobile { display: none !important; }
 }
+
+/* Hide scrollbar on horizontal product rows */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

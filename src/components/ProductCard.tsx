@@ -1,0 +1,47 @@
+import Link from "next/link";
+import { formatNaira } from "@/lib/format";
+import type { Product } from "@/types/catalog";
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  const href = `/shop/${product.categorySlug}/${product.slug}`;
+  const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
+
+  return (
+    <Link
+      href={href}
+      className="flex flex-col no-underline text-inherit rounded-md overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] min-w-[160px] w-[160px] shrink-0 hover:shadow-md transition-shadow duration-150 group"
+    >
+      {/* Image area */}
+      <div className="relative h-[180px] bg-[var(--color-surface-raised)] flex items-center justify-center overflow-hidden">
+        {/* Placeholder until real images Sprint 2 */}
+        <span className="text-2xl opacity-15 select-none font-bold group-hover:scale-105 transition-transform duration-300">
+          0VII
+        </span>
+
+        {/* Scripture ref badge — top right like discount badge */}
+        {product.scriptureRef && (
+          <span className="absolute top-2 right-2 bg-[var(--color-accent)] text-[var(--color-accent-fg)] text-[0.6rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-[0.04em]">
+            {product.scriptureRef}
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="py-2.5 px-3 flex flex-col gap-1">
+        <p className="text-[0.78rem] text-[var(--color-text-primary)] m-0 font-medium leading-snug line-clamp-2">
+          {product.name}
+        </p>
+        <p className="text-[var(--color-text-primary)] font-bold text-[0.88rem] m-0">
+          {formatNaira(lowestPrice)}
+        </p>
+        <p className="text-[var(--color-text-muted)] text-[0.68rem] m-0">
+          Pre-order
+        </p>
+      </div>
+    </Link>
+  );
+}
