@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 const NAV_LINKS = [
   { href: "/shop",              label: "Shop" },
@@ -20,6 +21,7 @@ export function Header() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isOnline } = useNetworkStatus();
 
   // Prevent hydration mismatch on theme icon
   useEffect(() => setMounted(true), []);
@@ -63,6 +65,17 @@ export function Header() {
 
         {/* Right controls */}
         <div className="flex items-center gap-3">
+          {/* Offline indicator */}
+          {!isOnline && (
+            <span
+              title="You're offline — your cart is saved"
+              className="inline-flex items-center gap-1 bg-[var(--color-error)] text-white text-[0.65rem] font-bold px-2 py-0.5 rounded-full tracking-[0.04em] uppercase"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block animate-pulse" />
+              Offline
+            </span>
+          )}
+
           {/* Theme toggle */}
           <button
             onClick={() => setTheme(nextTheme)}

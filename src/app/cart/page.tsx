@@ -3,28 +3,16 @@
 import { useCart } from "@/context/CartContext";
 import { formatNaira } from "@/lib/format";
 import { WhatsAppCheckout } from "@/lib/checkout";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 const checkout = new WhatsAppCheckout();
 
 export default function CartPage() {
   const { items, totalKobo, itemCount, removeItem, updateQuantity, clearCart } =
     useCart();
-  const [isOnline, setIsOnline] = useState(true);
-
-  useEffect(() => {
-    setIsOnline(navigator.onLine);
-    const online = () => setIsOnline(true);
-    const offline = () => setIsOnline(false);
-    window.addEventListener("online", online);
-    window.addEventListener("offline", offline);
-    return () => {
-      window.removeEventListener("online", online);
-      window.removeEventListener("offline", offline);
-    };
-  }, []);
+  const { isOnline } = useNetworkStatus();
 
   if (items.length === 0) {
     return (
@@ -80,8 +68,13 @@ export default function CartPage() {
                   Order on WhatsApp
                 </Button>
               ) : (
-                <div className="p-3 bg-[var(--color-error)]/10 text-[var(--color-error)] rounded-md text-sm mb-4 border border-[var(--color-error)]/20">
-                  You're offline. Connect to place your order — your cart is saved.
+                <div className="p-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-center mb-4">
+                  <p className="font-semibold text-[var(--color-text-primary)] m-0 mb-1">
+                    You're offline.
+                  </p>
+                  <p className="text-[var(--color-text-muted)] text-[0.85rem] m-0">
+                    Connect to place your order — your cart is saved.
+                  </p>
                 </div>
               )}
 

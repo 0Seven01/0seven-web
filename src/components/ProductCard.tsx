@@ -16,9 +16,19 @@ export function ProductCard({ product }: ProductCardProps) {
       className="flex flex-col no-underline text-inherit rounded-md overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] min-w-[160px] w-[160px] shrink-0 hover:shadow-md transition-shadow duration-150 group"
     >
       {/* Image area */}
-      <div className="relative h-[180px] bg-[var(--color-surface-raised)] flex items-center justify-center overflow-hidden">
+      <div 
+        className="relative h-[180px] bg-[var(--color-surface-raised)] flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage: product.images[0]?.blurDataURL ? `url(${product.images[0].blurDataURL})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         {/* Placeholder until real images Sprint 2 */}
-        <span className="text-2xl opacity-15 select-none font-bold group-hover:scale-105 transition-transform duration-300">
+        <span 
+          className="text-2xl opacity-15 select-none font-bold group-hover:scale-105 transition-transform duration-300"
+          style={{ display: product.images[0]?.blurDataURL ? "none" : "block" }}
+        >
           0VII
         </span>
 
