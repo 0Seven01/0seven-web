@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { CartProvider } from "@/context/CartContext";
+import { RecoveryBanner } from "@/components/RecoveryBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,7 +40,10 @@ export default function RootLayout({
           storageKey="0s-theme"
         >
           <ErrorBoundary>
-            {children}
+            <CartProvider>
+              <RecoveryBanner />
+              {children}
+            </CartProvider>
           </ErrorBoundary>
         </ThemeProvider>
       </body>
