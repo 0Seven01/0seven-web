@@ -10,11 +10,19 @@ export async function generateStaticParams() {
   return categories.map((cat) => ({ category: cat.slug }));
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   const cat = await getCategory(category);
   if (!cat) return {};
-  return { title: `${cat.name} — 0Seven`, description: cat.description };
+  return {
+    title: cat.name,
+    description: cat.description,
+    openGraph: {
+      title: `${cat.name} — 0Seven`,
+      description: cat.description,
+      url: `/shop/${category}`,
+    },
+  };
 }
 
 export default async function CategoryPage({ params }: Props) {

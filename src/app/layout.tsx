@@ -15,31 +15,48 @@ const inter = Inter({
   variable: "--font-body",
 });
 
-export const metadata: Metadata = {
-  title: "0Seven — Faith-Inspired Apparel",
-  description:
-    "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "0Seven",
-  },
-  openGraph: {
-    title: "0Seven — Faith-Inspired Apparel",
-    description: "Faith-inspired apparel from Lagos, Nigeria.",
-    url: "https://0seven.vercel.app",
-    siteName: "0Seven",
-    locale: "en_NG",
-    type: "website",
-  },
-};
-
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FAFAF8" },
     { media: "(prefers-color-scheme: dark)",  color: "#0E0D0C" },
   ],
+};
+
+export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://0seven.vercel.app"
+  ),
+  title: {
+    default: "0Seven — Faith-Inspired Apparel",
+    template: "%s | 0Seven",
+  },
+  description:
+    "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+  manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    siteName: "0Seven",
+    title: "0Seven — Faith-Inspired Apparel",
+    description:
+      "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+    locale: "en_NG",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "0Seven — Faith-Inspired Apparel",
+    description:
+      "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "0Seven",
+  },
 };
 
 export default function RootLayout({

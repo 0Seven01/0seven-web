@@ -3,9 +3,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export const metadata: Metadata = {
-  title: "Handmade Footwear — Coming Soon | 0Seven",
-  description:
-    "0Seven handmade footwear — crafted by hand, rooted in faith. Join the waitlist.",
+  title: "Handmade Footwear — Coming Soon",
+  description: "0Seven handmade footwear. Crafted by hand, rooted in faith. Join the waitlist.",
+  openGraph: {
+    title: "Handmade Footwear — Coming Soon | 0Seven",
+    description: "Crafted by hand, rooted in faith. Join the waitlist.",
+    url: "/footwear",
+  },
 };
 
 export default function FootwearPage() {

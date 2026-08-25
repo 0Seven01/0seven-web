@@ -3,8 +3,13 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
-  title: "Contact — 0Seven",
+  title: "Contact",
   description: "Get in touch with 0Seven.",
+  openGraph: {
+    title: "Contact — 0Seven",
+    description: "Get in touch with 0Seven.",
+    url: "/contact",
+  },
 };
 
 export default function ContactPage() {

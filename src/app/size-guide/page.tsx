@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "Size Guide — 0Seven",
+  title: "Size Guide",
   description: "Find your perfect fit with the 0Seven size guide.",
+  openGraph: {
+    title: "Size Guide — 0Seven",
+    description: "Find your perfect fit with the 0Seven size guide.",
+    url: "/size-guide",
+  },
 };
 
 export default function SizeGuidePage() {

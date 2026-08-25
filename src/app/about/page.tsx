@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "About — 0Seven",
-  description:
-    "The story behind 0Seven — faith, community, and Nigerian apparel.",
+  title: "About",
+  description: "The story behind 0Seven — faith, community, and Nigerian apparel.",
+  openGraph: {
+    title: "About — 0Seven",
+    description: "The story behind 0Seven — faith, community, and Nigerian apparel.",
+    url: "/about",
+  },
 };
 
 export default function AboutPage() {

@@ -5,6 +5,7 @@ import { formatNaira } from "@/lib/format";
 import { ProductInteractive } from "@/components/ProductInteractive";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ProductJsonLd } from "@/components/ProductJsonLd";
 
 type Props = { params: Promise<{ category: string; slug: string }> };
 
@@ -20,11 +21,28 @@ export async function generateStaticParams() {
   return params;
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;
   const product = await getProduct(category, slug);
   if (!product) return {};
-  return { title: `${product.name} — 0Seven`, description: product.description };
+
+  const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo)) / 100;
+
+  return {
+    title: product.name,
+    description: `${product.description}${product.scriptureRef ? ` — ${product.scriptureRef}` : ""}`,
+    openGraph: {
+      title: `${product.name} — 0Seven`,
+      description: product.description,
+      url: `/shop/${category}/${slug}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} — 0Seven`,
+      description: product.description,
+    },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -33,9 +51,12 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://0seven.vercel.app";
 
   return (
-    <div className="max-w-[1200px] mx-auto py-8 px-6 min-h-screen">
+    <>
+      <ProductJsonLd product={product} baseUrl={baseUrl} />
+      <div className="max-w-[1200px] mx-auto py-8 px-6 min-h-screen">
       {/* Breadcrumb */}
       <nav className="mb-6 text-[0.85rem] text-[var(--color-text-muted)] flex gap-2 items-center">
         <Link href="/shop" className="text-[var(--color-text-muted)] no-underline hover:text-[var(--color-text-primary)] transition-colors">Shop</Link>
@@ -76,6 +97,7 @@ export default async function ProductPage({ params }: Props) {
           <ProductInteractive product={product} />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

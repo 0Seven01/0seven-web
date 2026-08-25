@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "FAQs — 0Seven",
+  title: "FAQs",
   description: "Frequently asked questions about ordering, sizing, and delivery.",
+  openGraph: {
+    title: "FAQs — 0Seven",
+    description: "Frequently asked questions about ordering, sizing, and delivery.",
+    url: "/faqs",
+  },
 };
 
 const FAQS = [

@@ -4,8 +4,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Shop — 0Seven",
+  title: "Shop All",
   description: "Browse all 0Seven faith-inspired apparel.",
+  openGraph: {
+    title: "Shop All — 0Seven",
+    description: "Browse all 0Seven faith-inspired apparel.",
+    url: "/shop",
+  },
 };
 
 export default async function ShopPage() {

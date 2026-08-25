@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "Shipping & Returns — 0Seven",
+  title: "Shipping & Returns",
   description: "0Seven delivery and returns policy.",
+  openGraph: {
+    title: "Shipping & Returns — 0Seven",
+    description: "0Seven delivery and returns policy.",
+    url: "/shipping-returns",
+  },
 };
 
 export default function ShippingReturnsPage() {
