@@ -17,7 +17,21 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "0Seven — Faith-Inspired Apparel",
   description:
-    "Nigerian DTC faith-inspired apparel brand. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps.",
+    "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "0Seven",
+  },
+  openGraph: {
+    title: "0Seven — Faith-Inspired Apparel",
+    description: "Faith-inspired apparel from Lagos, Nigeria.",
+    url: "https://0seven.vercel.app",
+    siteName: "0Seven",
+    locale: "en_NG",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
