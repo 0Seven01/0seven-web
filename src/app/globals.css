@@ -28,3 +28,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Mobile nav visibility helpers */
+@media (min-width: 768px) {
+  .show-mobile  { display: none !important; }
+}
+@media (max-width: 767px) {
+  .hidden-mobile { display: none !important; }
+}

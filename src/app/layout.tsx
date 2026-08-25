@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CartProvider } from "@/context/CartContext";
 import { RecoveryBanner } from "@/components/RecoveryBanner";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 const inter = Inter({
@@ -32,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.variable}>
+      <body className={`${inter.variable} flex flex-col min-h-screen`}>
         <ThemeProvider
           attribute="data-theme"
           defaultTheme="system"
@@ -42,7 +44,11 @@ export default function RootLayout({
           <ErrorBoundary>
             <CartProvider>
               <RecoveryBanner />
-              {children}
+              <Header />
+              <div id="main-content" className="flex-1 flex flex-col">
+                {children}
+              </div>
+              <Footer />
             </CartProvider>
           </ErrorBoundary>
         </ThemeProvider>
