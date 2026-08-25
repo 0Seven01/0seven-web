@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
     loader: "custom",
     loaderFile: "./src/lib/cloudinary-loader.ts",
   },
+  turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);
