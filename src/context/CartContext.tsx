@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import type { CustomerDetails } from "@/types/customer";
+import { generateOrderReference } from "@/lib/checkout";
 
 export interface CartItem {
   variantId: string;
@@ -36,11 +37,14 @@ type CartState = {
   items: CartItem[];
   checkoutInitiated: boolean;
   customer: CustomerDetails;
+  orderReference: string | null;
 };
 
 type CartAction =
   | { type: "HYDRATE"; items: CartItem[] }
   | { type: "HYDRATE_CUSTOMER"; customer: CustomerDetails }
+  | { type: "HYDRATE_ORDER_REF"; reference: string }
+  | { type: "SET_ORDER_REF"; reference: string }
   | { type: "ADD"; item: CartItem }
   | { type: "REMOVE"; variantId: string }
   | { type: "UPDATE_QTY"; variantId: string; quantity: number }
@@ -54,6 +58,10 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return { ...state, items: action.items };
     case "HYDRATE_CUSTOMER":
       return { ...state, customer: action.customer };
+    case "HYDRATE_ORDER_REF":
+      return { ...state, orderReference: action.reference };
+    case "SET_ORDER_REF":
+      return { ...state, orderReference: action.reference };
     case "ADD": {
       const existing = state.items.find(
         (i) => i.variantId === action.item.variantId
@@ -90,7 +98,12 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         customer: { ...state.customer, ...action.customer },
       };
     case "CLEAR":
-      return { ...state, items: [], customer: DEFAULT_CUSTOMER };
+      return {
+        ...state,
+        items: [],
+        customer: DEFAULT_CUSTOMER,
+        orderReference: null,
+      };
     case "SET_CHECKOUT_INITIATED":
       return { ...state, checkoutInitiated: action.value };
     default:
@@ -102,12 +115,14 @@ interface CartContextValue {
   items: CartItem[];
   checkoutInitiated: boolean;
   customer: CustomerDetails;
+  orderReference: string | null;
   totalKobo: number;
   itemCount: number;
   addItem: (item: CartItem) => void;
   removeItem: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   updateCustomer: (details: Partial<CustomerDetails>) => void;
+  getOrCreateOrderReference: () => string;
   clearCart: () => void;
   dismissRecovery: () => void;
 }
@@ -119,6 +134,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items: [],
     checkoutInitiated: false,
     customer: DEFAULT_CUSTOMER,
+    orderReference: null,
   });
 
   // Rehydrate from localStorage on mount — before first render flash
@@ -133,6 +149,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
           type: "HYDRATE_CUSTOMER",
           customer: JSON.parse(storedCustomer),
         });
+
+      const storedRef = localStorage.getItem("0s_order_ref");
+      if (storedRef)
+        dispatch({ type: "HYDRATE_ORDER_REF", reference: storedRef });
 
       const initiated = localStorage.getItem("0s_checkout_initiated");
       if (initiated === "true")
@@ -170,10 +190,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "UPDATE_CUSTOMER", customer: details }),
     []
   );
+  const getOrCreateOrderReference = useCallback(() => {
+    if (state.orderReference) return state.orderReference;
+    const newRef = generateOrderReference();
+    dispatch({ type: "SET_ORDER_REF", reference: newRef });
+    localStorage.setItem("0s_order_ref", newRef);
+    return newRef;
+  }, [state.orderReference]);
   const clearCart = useCallback(() => {
     dispatch({ type: "CLEAR" });
     localStorage.removeItem("0s_checkout_initiated");
     localStorage.removeItem("0s_customer");
+    localStorage.removeItem("0s_order_ref");
     dispatch({ type: "SET_CHECKOUT_INITIATED", value: false });
   }, []);
   const dismissRecovery = useCallback(() => {
@@ -193,12 +221,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items: state.items,
         checkoutInitiated: state.checkoutInitiated,
         customer: state.customer,
+        orderReference: state.orderReference,
         totalKobo,
         itemCount,
         addItem,
         removeItem,
         updateQuantity,
         updateCustomer,
+        getOrCreateOrderReference,
         clearCart,
         dismissRecovery,
       }}
@@ -213,3 +243,4 @@ export function useCart(): CartContextValue {
   if (!ctx) throw new Error("useCart must be used inside CartProvider");
   return ctx;
 }
+
