@@ -33,7 +33,7 @@ export default async function CategoryPage({ params }: Props) {
   const products = await listProducts(category);
 
   return (
-    <div className="max-w-[1200px] mx-auto py-8 px-6 min-h-screen">
+    <div className="max-w-[1200px] mx-auto py-8 px-4 md:px-6 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center px-4 py-2.5 bg-[var(--color-accent)] rounded-md mb-5">
         <h1 className="text-base font-bold text-[var(--color-accent-fg)] m-0">
@@ -44,8 +44,8 @@ export default async function CategoryPage({ params }: Props) {
         </span>
       </div>
 
-      {/* Wrap grid — same card size, wraps to new rows */}
-      <div className="flex flex-wrap gap-3">
+      {/* Responsive product grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

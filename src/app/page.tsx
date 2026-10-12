@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { listCategories, listProducts } from "@/lib/catalog";
+import { formatNaira } from "@/lib/format";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -49,17 +51,34 @@ export default async function HomePage() {
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold mb-8">Community Favorites</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featured.map((p) => (
-              <a key={p.slug} href={`/shop/${p.categorySlug}/${p.slug}`} className="block">
-                <Card variant="default" padding="md" className="hover:border-[var(--color-accent)] transition-colors h-full flex flex-col justify-between">
-                  <div>
-                    <div className="bg-[var(--color-surface-raised)] aspect-square w-full rounded-md mb-4 flex items-center justify-center text-[var(--color-text-muted)]">Image</div>
-                    <h3 className="font-semibold text-lg">{p.name}</h3>
-                  </div>
-                  <p className="text-[var(--color-text-secondary)] mt-2">₦{p.variants[0]?.priceKobo / 100}</p>
-                </Card>
-              </a>
-            ))}
+            {featured.map((p) => {
+              const lowestPrice = Math.min(...p.variants.map((v) => v.priceKobo));
+              return (
+                <a key={p.slug} href={`/shop/${p.categorySlug}/${p.slug}`} className="block">
+                  <Card variant="default" padding="md" className="hover:border-[var(--color-accent)] transition-colors h-full flex flex-col justify-between">
+                    <div>
+                      <div className="relative bg-[var(--color-surface-raised)] aspect-square w-full rounded-md mb-4 overflow-hidden">
+                        {p.images[0] ? (
+                          <CloudinaryImage
+                            src={p.images[0].url}
+                            alt={p.images[0].alt || p.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 25vw"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[var(--color-text-muted)] text-xs">
+                            {p.name}
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-lg">{p.name}</h3>
+                    </div>
+                    <p className="text-[var(--color-text-secondary)] mt-2">{formatNaira(lowestPrice)}</p>
+                  </Card>
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import { formatNaira } from "@/lib/format";
 import { WhatsAppCheckout } from "@/lib/checkout";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 const checkout = new WhatsAppCheckout();
@@ -30,28 +31,60 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] py-12 px-4">
+    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] py-12 px-4 pb-28 lg:pb-12">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Your Cart ({itemCount} items)</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 space-y-4">
             {items.map((item) => (
-              <Card key={item.variantId} variant="default" padding="sm" className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="w-24 h-24 bg-[var(--color-surface-raised)] rounded-md flex-shrink-0 flex items-center justify-center text-xs text-[var(--color-text-muted)]">Image</div>
-                <div className="flex-1 text-center sm:text-left">
-                  <h3 className="font-semibold">{item.productName}</h3>
-                  <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
-                  <p className="font-medium mt-1">{formatNaira(item.priceKobo)}</p>
+              <Card key={item.variantId} variant="default" padding="sm" className="flex flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                <div className="relative w-24 h-28 sm:w-28 sm:h-32 bg-[var(--color-surface-raised)] rounded-md shrink-0 overflow-hidden border border-[var(--color-border)]">
+                  {item.imageUrl ? (
+                    <CloudinaryImage
+                      src={item.imageUrl}
+                      alt={item.productName}
+                      swatchHex={item.colourHex}
+                      fill
+                      sizes="(max-width: 640px) 112px, 128px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xs text-[var(--color-text-muted)] font-medium">
+                      {item.productName}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-3 bg-[var(--color-surface-raised)] rounded-md px-2 py-1">
-                  <button onClick={() => updateQuantity(item.variantId, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center font-bold hover:text-[var(--color-accent)]">−</button>
-                  <span className="w-4 text-center text-sm font-medium">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.variantId, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center font-bold hover:text-[var(--color-accent)]">+</button>
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="min-w-0 text-left">
+                    <h3 className="font-semibold text-base sm:text-lg truncate">{item.productName}</h3>
+                    <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
+                    <p className="font-bold text-[var(--color-text-primary)] mt-1">{formatNaira(item.priceKobo)}</p>
+                  </div>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                    <div className="flex items-center gap-1 sm:gap-2 bg-[var(--color-surface-raised)] rounded-md p-1 border border-[var(--color-border)]">
+                      <button
+                        onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                        aria-label={`Decrease quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
+                        className="w-10 h-10 sm:w-11 sm:h-11 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
+                      >−</button>
+                      <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                        aria-label={`Increase quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
+                        className="w-10 h-10 sm:w-11 sm:h-11 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
+                      >+</button>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItem(item.variantId)}
+                      className="text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white min-h-[44px] px-2 text-sm"
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => removeItem(item.variantId)} className="text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white">
-                  Remove
-                </Button>
               </Card>
             ))}
           </div>
@@ -92,6 +125,32 @@ export default function CartPage() {
             </Card>
           </div>
         </div>
+      </div>
+
+      {/* Sticky mobile checkout bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[var(--color-surface)] border-t border-[var(--color-border)] p-4 shadow-lg flex items-center justify-between gap-4">
+        <div>
+          <span className="text-xs text-[var(--color-text-secondary)] block">
+            {itemCount} {itemCount === 1 ? "item" : "items"}
+          </span>
+          <span className="font-bold text-lg text-[var(--color-text-primary)]">
+            {formatNaira(totalKobo)}
+          </span>
+        </div>
+        {isOnline ? (
+          <Button
+            variant="accent"
+            size="md"
+            onClick={() => checkout.checkout(items)}
+            className="font-bold shrink-0 min-h-[44px]"
+          >
+            Order on WhatsApp
+          </Button>
+        ) : (
+          <span className="text-xs text-[var(--color-text-muted)] text-right">
+            Go online to order
+          </span>
+        )}
       </div>
     </main>
   );

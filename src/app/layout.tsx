@@ -107,7 +107,7 @@ export default function RootLayout({
                 <PreviewBanner />
                 <RecoveryBanner />
                 <Header />
-                <div id="main-content" className="flex-1 flex flex-col">
+                <div id="main-content" className="flex-1 flex flex-col min-w-0 w-full max-w-full">
                   {children}
                 </div>
                 <Footer />

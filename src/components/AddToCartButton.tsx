@@ -16,6 +16,9 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
 
   const handleAdd = () => {
     if (!selectedVariant) return;
+    const matchingImage = product.images.find(
+      (img) => img.colourName?.toLowerCase() === selectedVariant.colour.name.toLowerCase()
+    );
     addItem({
       variantId: selectedVariant.id,
       productId: product.id,
@@ -27,7 +30,7 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
       colourHex: selectedVariant.colour.hex,
       priceKobo: selectedVariant.priceKobo,
       quantity,
-      imageUrl: product.images[0]?.url ?? "",
+      imageUrl: matchingImage?.url ?? product.images[0]?.url ?? "",
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

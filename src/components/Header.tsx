@@ -36,7 +36,7 @@ export function Header() {
       {/* Skip to content — accessibility */}
       <a
         href="#main-content"
-        className="absolute left-[-9999px] top-auto z-[100] focus:left-4 focus:top-4 bg-[var(--color-accent)] text-[var(--color-accent-fg)] px-4 py-2 rounded-md font-medium"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-[100] bg-[var(--color-accent)] text-[var(--color-accent-fg)] px-4 py-2 rounded-md font-medium"
       >
         Skip to content
       </a>
@@ -52,7 +52,7 @@ export function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav aria-label="Main navigation" className="hidden-mobile flex gap-6 items-center">
+        <nav aria-label="Main navigation" className="hidden lg:flex gap-6 items-center">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -100,12 +100,12 @@ export function Header() {
             )}
           </Link>
 
-          {/* Hamburger — mobile only */}
+          {/* Hamburger — mobile and tablet */}
           <button
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="show-mobile text-[1.25rem] text-[var(--color-text-primary)] p-1 hover:text-[var(--color-accent)] transition-colors focus:outline-none"
+            className="lg:hidden text-[1.25rem] text-[var(--color-text-primary)] p-1 hover:text-[var(--color-accent)] transition-colors focus:outline-none"
           >
             {menuOpen ? "✕" : "☰"}
           </button>
