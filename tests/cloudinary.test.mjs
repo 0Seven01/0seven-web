@@ -4,7 +4,7 @@ import {
   sanitizePublicId,
   buildCloudinaryUrl,
   buildCloudinaryLqipUrl,
-} from "./cloudinary.ts";
+} from "../src/lib/cloudinary.ts";
 
 test("sanitizePublicId strips leading slashes, whitespace, and image extensions", () => {
   assert.strictEqual(sanitizePublicId(""), "");

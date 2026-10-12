@@ -195,56 +195,70 @@ export default function CartPage() {
         <div className="flex flex-col md:flex-row gap-6 xl:gap-8">
           <div className="flex-1 space-y-6">
             <div className="space-y-4">
-              {items.map((item) => (
-                <Card key={item.variantId} variant="default" padding="sm" className="flex flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4">
-                  <div className="relative w-24 h-28 sm:w-28 sm:h-32 bg-[var(--color-surface-raised)] rounded-md shrink-0 overflow-hidden border border-[var(--color-border)]">
-                    {item.imageUrl ? (
-                      <CloudinaryImage
-                        src={item.imageUrl}
-                        alt={item.productName}
-                        swatchHex={item.colourHex}
-                        fill
-                        sizes="(max-width: 640px) 112px, 128px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-[var(--color-text-muted)] font-medium">
-                        {item.productName}
+              {items.map((item) => {
+                const productHref = `/shop/${item.categorySlug}/${item.slug}`;
+                return (
+                  <Card key={item.variantId} variant="default" padding="sm" className="flex flex-row items-center gap-3 md:gap-4 p-3 md:p-4">
+                    <Link
+                      href={productHref}
+                      aria-label={`View ${item.productName} in ${item.colourName}`}
+                      className="relative w-24 h-28 md:w-28 md:h-32 bg-[var(--color-surface-raised)] rounded-md shrink-0 overflow-hidden border border-[var(--color-border)] block group hover:opacity-95 transition-opacity"
+                    >
+                      {item.imageUrl ? (
+                        <CloudinaryImage
+                          src={item.imageUrl}
+                          alt={`${item.productName} — ${item.colourName}`}
+                          swatchHex={item.colourHex}
+                          fill
+                          sizes="(max-width: 768px) 96px, 112px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-[var(--color-text-muted)] font-medium p-2 text-center">
+                          {item.productName}
+                        </div>
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                      <div className="min-w-0 text-left">
+                        <Link href={productHref} className="hover:underline">
+                          <h3 className="font-semibold text-base md:text-lg truncate text-[var(--color-text-primary)]">{item.productName}</h3>
+                        </Link>
+                        <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
+                        <p className="font-bold text-[var(--color-text-primary)] mt-1">{formatNaira(item.priceKobo)}</p>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="min-w-0 text-left">
-                      <h3 className="font-semibold text-base sm:text-lg truncate">{item.productName}</h3>
-                      <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
-                      <p className="font-bold text-[var(--color-text-primary)] mt-1">{formatNaira(item.priceKobo)}</p>
-                    </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-                      <div className="flex items-center gap-1 sm:gap-2 bg-[var(--color-surface-raised)] rounded-md p-1 border border-[var(--color-border)]">
-                        <button
-                          onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                          aria-label={`Decrease quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
-                          className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
-                        >−</button>
-                        <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                          aria-label={`Increase quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
-                          className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
-                        >+</button>
+                      <div className="flex items-center justify-between md:justify-end gap-3 md:gap-4 shrink-0">
+                        <div className="flex items-center gap-1 md:gap-2 bg-[var(--color-surface-raised)] rounded-md p-1 border border-[var(--color-border)]">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                            aria-disabled={item.quantity <= 1}
+                            aria-label={`Decrease quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
+                            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg text-[var(--color-text-primary)] hover:text-[var(--color-accent)] cursor-pointer touch-manipulation select-none rounded focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-inherit"
+                          >−</button>
+                          <span className="min-w-[28px] px-1 text-center text-sm font-semibold">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                            aria-label={`Increase quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
+                            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg text-[var(--color-text-primary)] hover:text-[var(--color-accent)] cursor-pointer touch-manipulation select-none rounded focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none focus:outline-none"
+                          >+</button>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(item.variantId)}
+                          aria-label={`Remove ${item.productName}, ${item.colourName}, ${item.size} from cart`}
+                          className="text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white min-w-[44px] min-h-[44px] px-3 text-sm focus-visible:ring-2 focus-visible:ring-[var(--color-error)] focus-visible:outline-none"
+                        >
+                          Remove
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem(item.variantId)}
-                        className="text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white min-h-[44px] px-2 text-sm"
-                      >
-                        Remove
-                      </Button>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
 
             <CartCustomerForm

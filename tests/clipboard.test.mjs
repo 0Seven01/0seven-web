@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { copyToClipboard } from "./clipboard.ts";
+import { copyToClipboard } from "../src/lib/clipboard.ts";
 
 test("Tier 1: copyToClipboard succeeds via navigator.clipboard.writeText", async () => {
   let textWritten = "";

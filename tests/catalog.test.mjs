@@ -5,7 +5,7 @@ import {
   getCategory,
   listProducts,
   getProduct,
-} from "./catalog.ts";
+} from "../src/lib/catalog.ts";
 
 test("listCategories returns only active categories and excludes inactive ones", async () => {
   const categories = await listCategories();

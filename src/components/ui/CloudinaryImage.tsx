@@ -27,7 +27,7 @@ export function CloudinaryImage({
       <div
         role="img"
         aria-label={alt}
-        className={`w-full h-full min-h-[120px] flex items-center justify-center p-4 rounded-md border border-[var(--color-border)] select-none text-center ${className}`}
+        className={`w-full h-full min-h-0 flex items-center justify-center p-2 rounded-md border border-[var(--color-border)] select-none text-center ${className}`}
         style={{
           backgroundColor: swatchHex || "var(--color-surface-raised)",
         }}
