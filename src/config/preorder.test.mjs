@@ -6,6 +6,8 @@ import {
   isProductionEnvironment,
   PREORDER_CONFIG,
   formatPreorderCutoff,
+  formatPreorderEventDate,
+  isProductPreorderOpen,
 } from "./preorder.ts";
 
 const LAGOS_CUTOFF = "2026-10-18T23:59:59+01:00";
@@ -195,5 +197,35 @@ test("PREORDER_CONFIG.eventName is configured with Kairos Camp Meeting 2026 plac
   assert.strictEqual(PREORDER_CONFIG.eventName.value, "Kairos Camp Meeting 2026");
   assert.strictEqual(PREORDER_CONFIG.eventName.isPlaceholder, true);
 });
+
+test("formatPreorderEventDate formats event date to short Lagos format", () => {
+  assert.strictEqual(formatPreorderEventDate(), "26 Oct");
+  assert.strictEqual(formatPreorderEventDate("2026-10-26"), "26 Oct");
+  assert.strictEqual(formatPreorderEventDate("2026-11-05"), "5 Nov");
+});
+
+test("formatPreorderEventDate fails closed and returns empty string for missing or invalid date", () => {
+  assert.strictEqual(formatPreorderEventDate(null), "");
+  assert.strictEqual(formatPreorderEventDate(""), "");
+  assert.strictEqual(formatPreorderEventDate("   "), "");
+  assert.strictEqual(formatPreorderEventDate("invalid-iso-date"), "");
+});
+
+test("isProductPreorderOpen respects campaign state and per-product preorderClosed flag", () => {
+  const normalProduct = { id: "p1", name: "Forgiven Tee" };
+  const soldOutProduct = { id: "p2", name: "Justified Tee", preorderClosed: true };
+  const explicitOpenProduct = { id: "p3", name: "Righteous Tee", preorderClosed: false };
+
+  // When campaign is open:
+  assert.strictEqual(isProductPreorderOpen(normalProduct, true), true);
+  assert.strictEqual(isProductPreorderOpen(explicitOpenProduct, true), true);
+  assert.strictEqual(isProductPreorderOpen(soldOutProduct, true), false);
+
+  // When campaign is closed:
+  assert.strictEqual(isProductPreorderOpen(normalProduct, false), false);
+  assert.strictEqual(isProductPreorderOpen(explicitOpenProduct, false), false);
+  assert.strictEqual(isProductPreorderOpen(soldOutProduct, false), false);
+});
+
 
 
