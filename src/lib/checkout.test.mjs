@@ -4,6 +4,7 @@ import {
   generateOrderReference,
   buildPreorderMessage,
   WhatsAppCheckout,
+  getWhatsAppNumber,
   UNAMBIGUOUS_ALPHABET,
 } from "./checkout.ts";
 
@@ -382,5 +383,34 @@ test("WhatsAppCheckout fails closed when pre-orders are closed", async () => {
     }
   }
 });
+
+test("getWhatsAppNumber returns configured number", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "2347034306187";
+  try {
+    assert.strictEqual(getWhatsAppNumber(), "2347034306187");
+  } finally {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+  }
+});
+
+test("getWhatsAppNumber fails closed when environment variable is missing", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  delete process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  try {
+    assert.throws(
+      () => {
+        getWhatsAppNumber();
+      },
+      {
+        name: "Error",
+        message: "WhatsApp number not configured.",
+      }
+    );
+  } finally {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+  }
+});
+
 
 

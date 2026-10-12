@@ -5,7 +5,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CartProvider } from "@/context/CartContext";
 import { OfflineQueueProvider } from "@/components/OfflineQueueProvider";
-import { RecoveryBanner } from "@/components/RecoveryBanner";
 import { PreviewBanner } from "@/components/PreviewBanner";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -105,7 +104,6 @@ export default function RootLayout({
             <CartProvider>
               <OfflineQueueProvider>
                 <PreviewBanner />
-                <RecoveryBanner />
                 <Header />
                 <div id="main-content" className="flex-1 flex flex-col min-w-0 w-full max-w-full">
                   {children}

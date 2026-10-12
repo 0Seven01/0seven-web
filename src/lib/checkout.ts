@@ -93,6 +93,12 @@ export interface CheckoutProvider {
   ): Promise<void>;
 }
 
+export function getWhatsAppNumber(): string {
+  const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  if (!number) throw new Error("WhatsApp number not configured.");
+  return number;
+}
+
 export class WhatsAppCheckout implements CheckoutProvider {
   readonly id = "whatsapp" as const;
   readonly label = "Order on WhatsApp";
@@ -110,8 +116,7 @@ export class WhatsAppCheckout implements CheckoutProvider {
       throw new Error("Pre-orders have closed for this campaign.");
     }
 
-    const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-    if (!number) throw new Error("WhatsApp number not configured.");
+    const number = getWhatsAppNumber();
 
     const reference = options?.reference ?? generateOrderReference();
     const message = buildPreorderMessage({
