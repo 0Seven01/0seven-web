@@ -1,6 +1,6 @@
-import type { Category, Product, ProductImage, Variant, Size, Colour } from "@/types/catalog";
-import { PREORDER_CONFIG } from "@/config/preorder";
-import { buildCloudinaryLqipUrl } from "@/lib/cloudinary";
+import type { Category, Product, ProductImage, Variant, Size, Colour } from "../types/catalog.ts";
+import { PREORDER_CONFIG } from "../config/preorder.ts";
+import { buildCloudinaryLqipUrl } from "../lib/cloudinary.ts";
 
 const basePriceKobo = PREORDER_CONFIG.pricePerDesignKobo.value;
 if (!Number.isFinite(basePriceKobo) || basePriceKobo <= 0) {
@@ -8,11 +8,11 @@ if (!Number.isFinite(basePriceKobo) || basePriceKobo <= 0) {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: "cat-1", slug: "t-shirts",    name: "T-Shirts",    description: "Faith-inspired everyday tees.", sortOrder: 1, comingSoon: false },
-  { id: "cat-2", slug: "roundnecks",  name: "Roundnecks",  description: "Clean roundneck essentials.",   sortOrder: 2, comingSoon: false },
-  { id: "cat-3", slug: "sweatshirts", name: "Sweatshirts", description: "Heavyweight street sweatshirts.", sortOrder: 3, comingSoon: false },
-  { id: "cat-4", slug: "hoodies",     name: "Hoodies",     description: "Statement hoodies, oversized.",  sortOrder: 4, comingSoon: false },
-  { id: "cat-5", slug: "caps",        name: "Caps",        description: "Structured faith caps.",         sortOrder: 5, comingSoon: false },
+  { id: "cat-1", slug: "t-shirts",    name: "T-Shirts",    description: "Faith-inspired everyday tees.", sortOrder: 1, comingSoon: false, active: true },
+  { id: "cat-2", slug: "roundnecks",  name: "Roundnecks",  description: "Clean roundneck essentials.",   sortOrder: 2, comingSoon: false, active: false },
+  { id: "cat-3", slug: "sweatshirts", name: "Sweatshirts", description: "Heavyweight street sweatshirts.", sortOrder: 3, comingSoon: false, active: false },
+  { id: "cat-4", slug: "hoodies",     name: "Hoodies",     description: "Statement hoodies, oversized.",  sortOrder: 4, comingSoon: false, active: false },
+  { id: "cat-5", slug: "caps",        name: "Caps",        description: "Structured faith caps.",         sortOrder: 5, comingSoon: false, active: false },
 ];
 
 const COLOUR_PALETTE: Record<string, Colour> = {

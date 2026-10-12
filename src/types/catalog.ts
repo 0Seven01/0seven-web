@@ -45,4 +45,5 @@ export interface Category {
   description: string;
   sortOrder: number;
   comingSoon: boolean;
+  active: boolean;
 }

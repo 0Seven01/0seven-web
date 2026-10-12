@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 export const metadata: Metadata = {
   title: "0Seven — Faith-Inspired Apparel",
   description:
-    "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+    "Nigerian DTC faith-inspired apparel. T-Shirts. Order on WhatsApp.",
 };
 
 export default async function HomePage() {
@@ -34,13 +34,19 @@ export default async function HomePage() {
       <section data-section="categories" className="py-16 px-4 bg-[var(--color-surface)]">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">Shop by Category</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div
+            className={
+              categories.length === 1
+                ? "flex justify-center max-w-xs mx-auto"
+                : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+            }
+          >
             {categories.map((cat) => (
-              <a key={cat.slug} href={`/shop/${cat.slug}`} className="block">
-                <Card variant="elevated" padding="md" className="text-center hover:border-[var(--color-accent)] transition-colors cursor-pointer h-full flex items-center justify-center">
+              <Link key={cat.slug} href={`/shop/${cat.slug}`} className="block w-full">
+                <Card variant="elevated" padding="md" className="text-center hover:border-[var(--color-accent)] transition-colors cursor-pointer h-full flex items-center justify-center min-h-[56px]">
                   <span className="font-semibold">{cat.name}</span>
                 </Card>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
