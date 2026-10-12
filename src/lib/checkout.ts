@@ -94,9 +94,22 @@ export interface CheckoutProvider {
 }
 
 export function getWhatsAppNumber(): string {
-  const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-  if (!number) throw new Error("WhatsApp number not configured.");
-  return number;
+  const raw = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  if (!raw || !raw.trim()) {
+    throw new Error("Ordering is temporarily unavailable — please contact us on Instagram.");
+  }
+
+  const trimmed = raw.trim();
+  if (/X{3,}/i.test(trimmed) || trimmed.toLowerCase().includes("placeholder")) {
+    throw new Error("Ordering is temporarily unavailable — please contact us on Instagram.");
+  }
+
+  const sanitized = trimmed.replace(/[\s+\-()]/g, "");
+  if (!/^\d{10,15}$/.test(sanitized)) {
+    throw new Error("Ordering is temporarily unavailable — please contact us on Instagram.");
+  }
+
+  return sanitized;
 }
 
 export class WhatsAppCheckout implements CheckoutProvider {

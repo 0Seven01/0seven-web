@@ -29,7 +29,49 @@ while ((match = placeholderRegex.exec(source)) !== null) {
   });
 }
 
-const isProduction = process.env.VERCEL_ENV === "production";
+const isProduction = (process.env.VERCEL_ENV || "").trim() === "production";
+
+// Validate NEXT_PUBLIC_WHATSAPP_NUMBER (P15)
+const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+const isNumberMissing = !rawNumber || !rawNumber.trim();
+const isNumberPlaceholder = rawNumber
+  ? /X{3,}/i.test(rawNumber) || rawNumber.toLowerCase().includes("placeholder")
+  : false;
+const sanitizedNumber = rawNumber ? rawNumber.trim().replace(/[\s+\-()]/g, "") : "";
+const isNumberMalformed = rawNumber ? !/^\d{10,15}$/.test(sanitizedNumber) : false;
+const isWhatsAppInvalid = isNumberMissing || isNumberPlaceholder || isNumberMalformed;
+
+if (isWhatsAppInvalid) {
+  if (isProduction) {
+    console.error("\n=======================================================");
+    console.error("  [check:placeholders] PRODUCTION BUILD BLOCKED (P15 / PR-EV2 / P-14)");
+    console.error("=======================================================");
+    if (isNumberMissing) {
+      console.error("  Missing environment variable: NEXT_PUBLIC_WHATSAPP_NUMBER");
+    } else if (isNumberPlaceholder) {
+      console.error(`  Placeholder WhatsApp number detected: "${rawNumber}"`);
+    } else {
+      console.error(`  Malformed WhatsApp number detected: "${rawNumber}" (must be 10-15 digits E.164)`);
+    }
+    console.error("\nProduction deployments cannot ship with a missing, placeholder, or malformed WhatsApp number.");
+    console.error("Configure Continental's WhatsApp number in Vercel before deploying.");
+    console.error("=======================================================\n");
+    process.exit(1);
+  } else {
+    console.warn("\n-------------------------------------------------------");
+    console.warn("  [check:placeholders] PREVIEW / DEV BUILD WARNING (P15)");
+    console.warn("-------------------------------------------------------");
+    if (isNumberMissing) {
+      console.warn("  NEXT_PUBLIC_WHATSAPP_NUMBER is missing.");
+    } else if (isNumberPlaceholder) {
+      console.warn(`  NEXT_PUBLIC_WHATSAPP_NUMBER is a placeholder: "${rawNumber}"`);
+    } else {
+      console.warn(`  NEXT_PUBLIC_WHATSAPP_NUMBER is malformed: "${rawNumber}"`);
+    }
+    console.warn("  Preview build will proceed. Checkout will show temporary Instagram notice.");
+    console.warn("-------------------------------------------------------\n");
+  }
+}
 
 if (pendingPlaceholders.length > 0) {
   if (isProduction) {
