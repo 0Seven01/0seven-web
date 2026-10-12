@@ -1,17 +1,18 @@
 import type { CartItem } from "@/context/CartContext";
+import type { CustomerDetails } from "@/types/customer";
 import { formatNaira } from "@/lib/format";
 
 export interface CheckoutProvider {
   readonly id: "whatsapp" | "paystack";
   readonly label: string;
-  checkout(cart: CartItem[]): Promise<void>;
+  checkout(cart: CartItem[], customer?: CustomerDetails): Promise<void>;
 }
 
 export class WhatsAppCheckout implements CheckoutProvider {
   readonly id = "whatsapp" as const;
   readonly label = "Order on WhatsApp";
 
-  async checkout(cart: CartItem[]): Promise<void> {
+  async checkout(cart: CartItem[], customer?: CustomerDetails): Promise<void> {
     const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
     if (!number) throw new Error("WhatsApp number not configured.");
 
@@ -25,12 +26,27 @@ export class WhatsAppCheckout implements CheckoutProvider {
       0
     );
 
+    const customerLines: string[] = [];
+    if (customer && customer.fullName) {
+      customerLines.push(
+        "",
+        `Name: ${customer.fullName.trim()}`,
+        `Phone: ${customer.phone.trim()}`,
+        `Collection: ${
+          customer.deliveryMethod === "delivery"
+            ? `Lagos Delivery (${customer.deliveryAddress?.trim() ?? "Address to confirm"})`
+            : "Pickup at 26 Oct event"
+        }`
+      );
+    }
+
     const message = [
       "Hi 0Seven! I'd like to order:",
       "",
       ...lines,
       "",
       `Total: ${formatNaira(total)}`,
+      ...customerLines,
     ].join("\n");
 
     const encoded = encodeURIComponent(message);

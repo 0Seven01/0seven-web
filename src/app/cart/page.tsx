@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { formatNaira } from "@/lib/format";
@@ -7,14 +8,67 @@ import { WhatsAppCheckout } from "@/lib/checkout";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { CartCustomerForm } from "@/components/CartCustomerForm";
+import { customerDetailsSchema } from "@/lib/validation/customer";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import type { CustomerDetails } from "@/types/customer";
 
 const checkout = new WhatsAppCheckout();
 
 export default function CartPage() {
-  const { items, totalKobo, itemCount, removeItem, updateQuantity, clearCart } =
-    useCart();
+  const {
+    items,
+    totalKobo,
+    itemCount,
+    customer,
+    removeItem,
+    updateQuantity,
+    clearCart,
+  } = useCart();
   const { isOnline } = useNetworkStatus();
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const clearFieldError = (field: keyof CustomerDetails) => {
+    if (formErrors[field]) {
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const handleCheckout = () => {
+    const result = customerDetailsSchema.safeParse(customer);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0];
+        if (typeof field === "string" && !errors[field]) {
+          errors[field] = issue.message;
+        }
+      }
+      setFormErrors(errors);
+      const firstErrorField = result.error.issues[0]?.path[0];
+      const targetId =
+        firstErrorField === "fullName"
+          ? "cart-fullname"
+          : firstErrorField === "phone"
+          ? "cart-phone"
+          : firstErrorField === "deliveryAddress"
+          ? "cart-address"
+          : "cart-fullname";
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetEl.focus();
+      }
+      return;
+    }
+
+    setFormErrors({});
+    checkout.checkout(items, customer);
+  };
 
   if (items.length === 0) {
     return (
@@ -36,57 +90,64 @@ export default function CartPage() {
         <h1 className="text-3xl font-bold mb-8">Your Cart ({itemCount} items)</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-1 space-y-4">
-            {items.map((item) => (
-              <Card key={item.variantId} variant="default" padding="sm" className="flex flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4">
-                <div className="relative w-24 h-28 sm:w-28 sm:h-32 bg-[var(--color-surface-raised)] rounded-md shrink-0 overflow-hidden border border-[var(--color-border)]">
-                  {item.imageUrl ? (
-                    <CloudinaryImage
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      swatchHex={item.colourHex}
-                      fill
-                      sizes="(max-width: 640px) 112px, 128px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-[var(--color-text-muted)] font-medium">
-                      {item.productName}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="min-w-0 text-left">
-                    <h3 className="font-semibold text-base sm:text-lg truncate">{item.productName}</h3>
-                    <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
-                    <p className="font-bold text-[var(--color-text-primary)] mt-1">{formatNaira(item.priceKobo)}</p>
+          <div className="flex-1 space-y-6">
+            <div className="space-y-4">
+              {items.map((item) => (
+                <Card key={item.variantId} variant="default" padding="sm" className="flex flex-row items-center gap-3 sm:gap-4 p-3 sm:p-4">
+                  <div className="relative w-24 h-28 sm:w-28 sm:h-32 bg-[var(--color-surface-raised)] rounded-md shrink-0 overflow-hidden border border-[var(--color-border)]">
+                    {item.imageUrl ? (
+                      <CloudinaryImage
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        swatchHex={item.colourHex}
+                        fill
+                        sizes="(max-width: 640px) 112px, 128px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-[var(--color-text-muted)] font-medium">
+                        {item.productName}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-                    <div className="flex items-center gap-1 sm:gap-2 bg-[var(--color-surface-raised)] rounded-md p-1 border border-[var(--color-border)]">
-                      <button
-                        onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                        aria-label={`Decrease quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
-                        className="w-10 h-10 sm:w-11 sm:h-11 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
-                      >−</button>
-                      <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                        aria-label={`Increase quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
-                        className="w-10 h-10 sm:w-11 sm:h-11 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
-                      >+</button>
+                  <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="min-w-0 text-left">
+                      <h3 className="font-semibold text-base sm:text-lg truncate">{item.productName}</h3>
+                      <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
+                      <p className="font-bold text-[var(--color-text-primary)] mt-1">{formatNaira(item.priceKobo)}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(item.variantId)}
-                      className="text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white min-h-[44px] px-2 text-sm"
-                    >
-                      Remove
-                    </Button>
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                      <div className="flex items-center gap-1 sm:gap-2 bg-[var(--color-surface-raised)] rounded-md p-1 border border-[var(--color-border)]">
+                        <button
+                          onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                          aria-label={`Decrease quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
+                          className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
+                        >−</button>
+                        <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                          aria-label={`Increase quantity of ${item.productName}, ${item.colourName}, ${item.size}`}
+                          className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg hover:text-[var(--color-accent)] cursor-pointer focus:outline-none"
+                        >+</button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeItem(item.variantId)}
+                        className="text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white min-h-[44px] px-2 text-sm"
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
+
+            <CartCustomerForm
+              errors={formErrors}
+              onClearError={clearFieldError}
+            />
           </div>
 
           <div className="w-full lg:w-80">
@@ -98,7 +159,7 @@ export default function CartPage() {
               </div>
 
               {isOnline ? (
-                <Button variant="accent" size="lg" className="w-full mb-4" onClick={() => checkout.checkout(items)}>
+                <Button variant="accent" size="lg" className="w-full mb-4" onClick={handleCheckout}>
                   Order on WhatsApp
                 </Button>
               ) : (
@@ -115,7 +176,7 @@ export default function CartPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-[var(--color-text-muted)] hover:text-[var(--color-error)]"
+                className="w-full min-h-[44px] text-[var(--color-text-muted)] hover:text-[var(--color-error)]"
                 onClick={() => {
                   if (confirm("Order sent? This will clear your cart.")) clearCart();
                 }}
@@ -141,7 +202,7 @@ export default function CartPage() {
           <Button
             variant="accent"
             size="md"
-            onClick={() => checkout.checkout(items)}
+            onClick={handleCheckout}
             className="font-bold shrink-0 min-h-[44px]"
           >
             Order on WhatsApp

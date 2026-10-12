@@ -9,6 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
+import type { CustomerDetails } from "@/types/customer";
+
 export interface CartItem {
   variantId: string;
   productId: string;
@@ -23,16 +25,26 @@ export interface CartItem {
   imageUrl: string;
 }
 
+export const DEFAULT_CUSTOMER: CustomerDetails = {
+  fullName: "",
+  phone: "",
+  deliveryMethod: "pickup",
+  deliveryAddress: "",
+};
+
 type CartState = {
   items: CartItem[];
   checkoutInitiated: boolean;
+  customer: CustomerDetails;
 };
 
 type CartAction =
   | { type: "HYDRATE"; items: CartItem[] }
+  | { type: "HYDRATE_CUSTOMER"; customer: CustomerDetails }
   | { type: "ADD"; item: CartItem }
   | { type: "REMOVE"; variantId: string }
   | { type: "UPDATE_QTY"; variantId: string; quantity: number }
+  | { type: "UPDATE_CUSTOMER"; customer: Partial<CustomerDetails> }
   | { type: "CLEAR" }
   | { type: "SET_CHECKOUT_INITIATED"; value: boolean };
 
@@ -40,6 +52,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "HYDRATE":
       return { ...state, items: action.items };
+    case "HYDRATE_CUSTOMER":
+      return { ...state, customer: action.customer };
     case "ADD": {
       const existing = state.items.find(
         (i) => i.variantId === action.item.variantId
@@ -70,8 +84,13 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             : i
         ),
       };
+    case "UPDATE_CUSTOMER":
+      return {
+        ...state,
+        customer: { ...state.customer, ...action.customer },
+      };
     case "CLEAR":
-      return { ...state, items: [] };
+      return { ...state, items: [], customer: DEFAULT_CUSTOMER };
     case "SET_CHECKOUT_INITIATED":
       return { ...state, checkoutInitiated: action.value };
     default:
@@ -82,11 +101,13 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 interface CartContextValue {
   items: CartItem[];
   checkoutInitiated: boolean;
+  customer: CustomerDetails;
   totalKobo: number;
   itemCount: number;
   addItem: (item: CartItem) => void;
   removeItem: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
+  updateCustomer: (details: Partial<CustomerDetails>) => void;
   clearCart: () => void;
   dismissRecovery: () => void;
 }
@@ -97,6 +118,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
     checkoutInitiated: false,
+    customer: DEFAULT_CUSTOMER,
   });
 
   // Rehydrate from localStorage on mount — before first render flash
@@ -104,6 +126,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem("0s_cart");
       if (stored) dispatch({ type: "HYDRATE", items: JSON.parse(stored) });
+
+      const storedCustomer = localStorage.getItem("0s_customer");
+      if (storedCustomer)
+        dispatch({
+          type: "HYDRATE_CUSTOMER",
+          customer: JSON.parse(storedCustomer),
+        });
 
       const initiated = localStorage.getItem("0s_checkout_initiated");
       if (initiated === "true")
@@ -113,10 +142,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Persist on every cart change
+  // Persist items on every cart change
   useEffect(() => {
     localStorage.setItem("0s_cart", JSON.stringify(state.items));
   }, [state.items]);
+
+  // Persist customer details on change
+  useEffect(() => {
+    localStorage.setItem("0s_customer", JSON.stringify(state.customer));
+  }, [state.customer]);
 
   const addItem = useCallback(
     (item: CartItem) => dispatch({ type: "ADD", item }),
@@ -131,9 +165,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "UPDATE_QTY", variantId, quantity }),
     []
   );
+  const updateCustomer = useCallback(
+    (details: Partial<CustomerDetails>) =>
+      dispatch({ type: "UPDATE_CUSTOMER", customer: details }),
+    []
+  );
   const clearCart = useCallback(() => {
     dispatch({ type: "CLEAR" });
     localStorage.removeItem("0s_checkout_initiated");
+    localStorage.removeItem("0s_customer");
     dispatch({ type: "SET_CHECKOUT_INITIATED", value: false });
   }, []);
   const dismissRecovery = useCallback(() => {
@@ -152,11 +192,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         items: state.items,
         checkoutInitiated: state.checkoutInitiated,
+        customer: state.customer,
         totalKobo,
         itemCount,
         addItem,
         removeItem,
         updateQuantity,
+        updateCustomer,
         clearCart,
         dismissRecovery,
       }}
