@@ -214,3 +214,31 @@ export function formatPreorderCutoff(cutoff?: string | null): string {
   }).format(date);
 }
 
+export function formatPreorderEventDate(eventDate?: string | null): string {
+  const rawDate =
+    eventDate !== undefined ? eventDate : PREORDER_CONFIG.eventDate.value;
+  if (!rawDate || typeof rawDate !== "string" || !rawDate.trim()) return "";
+
+  const trimmed = rawDate.trim();
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  const parseTarget = isoMatch ? `${trimmed}T12:00:00Z` : trimmed;
+  const epoch = Date.parse(parseTarget);
+  if (Number.isNaN(epoch)) return "";
+
+  const date = new Date(epoch);
+  return new Intl.DateTimeFormat("en-NG", {
+    timeZone: "Africa/Lagos",
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+export function isProductPreorderOpen(
+  product: { preorderClosed?: boolean },
+  campaignOpen: boolean
+): boolean {
+  if (!campaignOpen) return false;
+  return !product.preorderClosed;
+}
+
+

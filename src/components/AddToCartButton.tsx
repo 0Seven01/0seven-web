@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { usePreorderStatus } from "@/hooks/usePreorderStatus";
+import { isProductPreorderOpen } from "@/config/preorder";
 import type { Product, Variant } from "@/types/catalog";
 
 interface AddToCartButtonProps {
@@ -14,8 +16,11 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
+  const { isOpen: campaignOpen } = usePreorderStatus();
+  const isProductOpen = isProductPreorderOpen(product, campaignOpen);
+
   const handleAdd = () => {
-    if (!selectedVariant) return;
+    if (!isProductOpen || !selectedVariant) return;
     const matchingImage = product.images.find(
       (img) => img.colourName?.toLowerCase() === selectedVariant.colour.name.toLowerCase()
     );
@@ -36,33 +41,44 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const disabled = !selectedVariant;
+  const disabled = !isProductOpen || !selectedVariant;
+
+  let buttonText = "Add to Cart — Pre-order";
+  if (!isProductOpen) {
+    buttonText = product.preorderClosed ? "Sold Out" : "Pre-orders Closed";
+  } else if (added) {
+    buttonText = "✓ Added to Cart";
+  } else if (!selectedVariant) {
+    buttonText = "Select size";
+  }
 
   return (
     <div className="flex flex-col gap-4">
       {/* Quantity */}
-      <div className="flex items-center gap-3">
-        <p className="text-[0.8rem] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.06em] m-0">
-          Qty
-        </p>
-        <div className="flex items-center border border-[var(--color-border)] rounded-[4px] overflow-hidden bg-[var(--color-surface)]">
-          <button
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="w-9 h-9 bg-transparent border-none cursor-pointer text-base text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
-          >
-            −
-          </button>
-          <span className="w-8 text-center text-[0.9rem] font-semibold text-[var(--color-text-primary)]">
-            {quantity}
-          </span>
-          <button
-            onClick={() => setQuantity((q) => q + 1)}
-            className="w-9 h-9 bg-transparent border-none cursor-pointer text-base text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
-          >
-            +
-          </button>
+      {isProductOpen && (
+        <div className="flex items-center gap-3">
+          <p className="text-[0.8rem] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.06em] m-0">
+            Qty
+          </p>
+          <div className="flex items-center border border-[var(--color-border)] rounded-[4px] overflow-hidden bg-[var(--color-surface)]">
+            <button
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              className="w-9 h-9 bg-transparent border-none cursor-pointer text-base text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
+            >
+              −
+            </button>
+            <span className="w-8 text-center text-[0.9rem] font-semibold text-[var(--color-text-primary)]">
+              {quantity}
+            </span>
+            <button
+              onClick={() => setQuantity((q) => q + 1)}
+              className="w-9 h-9 bg-transparent border-none cursor-pointer text-base text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
+            >
+              +
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Add to cart */}
       <button
@@ -76,16 +92,16 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
             : "bg-[var(--color-accent)] text-[var(--color-accent-fg)] cursor-pointer hover:opacity-90"
         }`}
       >
-        {added
-          ? "✓ Added to Cart"
-          : disabled
-          ? "Select size"
-          : "Add to Cart — Pre-order"}
+        {buttonText}
       </button>
 
       {/* Pre-order notice */}
       <p className="text-[0.75rem] text-[var(--color-text-muted)] text-center m-0">
-        Pre-order. Payment & delivery confirmed over WhatsApp.
+        {!isProductOpen
+          ? product.preorderClosed
+            ? "This design is currently sold out."
+            : "Pre-orders have closed for this launch."
+          : "Pre-order. Payment & delivery confirmed over WhatsApp."}
       </p>
     </div>
   );

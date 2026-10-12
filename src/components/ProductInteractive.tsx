@@ -7,6 +7,8 @@ import { SizeSelector } from "@/components/SizeSelector";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { Badge } from "@/components/ui/Badge";
 import { formatNaira } from "@/lib/format";
+import { usePreorderStatus } from "@/hooks/usePreorderStatus";
+import { isProductPreorderOpen, formatPreorderEventDate } from "@/config/preorder";
 import type { Product, Variant } from "@/types/catalog";
 
 interface ProductInteractiveProps {
@@ -33,6 +35,10 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
     (v) => v.colour.name === selectedColour
   )?.colour.hex;
 
+  const { isOpen: campaignOpen } = usePreorderStatus();
+  const isProductOpen = isProductPreorderOpen(product, campaignOpen);
+  const eventDateFormatted = formatPreorderEventDate();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
       {/* Product photo gallery filtered by selected colour */}
@@ -45,18 +51,34 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
 
       {/* Product details & interactive selections */}
       <div className="flex flex-col gap-5 sticky top-[100px]">
-        {product.scriptureRef && (
-          <div>
+        {/* Badges row: Pre-order status + Scripture reference */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {isProductOpen ? (
+            <Badge variant="accent">Pre-order</Badge>
+          ) : (
+            <Badge variant="muted">
+              {product.preorderClosed ? "Sold Out" : "Pre-order Closed"}
+            </Badge>
+          )}
+          {product.scriptureRef && (
             <Badge variant="muted">{product.scriptureRef}</Badge>
-          </div>
-        )}
+          )}
+        </div>
+
         <div className="flex flex-col gap-2">
           <h1 className="text-[1.75rem] md:text-3xl font-bold text-[var(--color-text-primary)] m-0 leading-tight">
             {product.name}
           </h1>
-          <p className="text-2xl font-bold text-[var(--color-accent)] m-0">
-            {formatNaira(lowestPrice)}
-          </p>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <p className="text-2xl font-bold text-[var(--color-accent)] m-0">
+              {formatNaira(lowestPrice)}
+            </p>
+            {eventDateFormatted && (
+              <span className="text-xs text-[var(--color-text-muted)] font-medium">
+                • Ships for the {eventDateFormatted} event
+              </span>
+            )}
+          </div>
         </div>
         <p className="text-[var(--color-text-secondary)] text-[0.95rem] leading-relaxed m-0">
           {product.description}

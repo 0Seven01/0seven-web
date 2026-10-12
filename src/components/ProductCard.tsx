@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { formatNaira } from "@/lib/format";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { Badge } from "@/components/ui/Badge";
+import { usePreorderStatus } from "@/hooks/usePreorderStatus";
+import { isProductPreorderOpen } from "@/config/preorder";
 import type { Product } from "@/types/catalog";
 
 interface ProductCardProps {
@@ -11,6 +16,8 @@ interface ProductCardProps {
 export function ProductCard({ product, className }: ProductCardProps) {
   const href = `/shop/${product.categorySlug}/${product.slug}`;
   const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
+  const { isOpen: campaignOpen } = usePreorderStatus();
+  const isOpen = isProductPreorderOpen(product, campaignOpen);
 
   return (
     <Link
@@ -19,6 +26,23 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       {/* Image area */}
       <div className="relative aspect-[3/4] w-full bg-[var(--color-surface-raised)] overflow-hidden">
+        {/* Pre-order status badge — top left */}
+        {isOpen ? (
+          <Badge
+            variant="accent"
+            className="absolute top-2 left-2 z-10 text-[0.625rem] px-1.5 py-0.5 max-w-[85px] truncate"
+          >
+            Pre-order
+          </Badge>
+        ) : (
+          <Badge
+            variant="muted"
+            className="absolute top-2 left-2 z-10 text-[0.625rem] px-1.5 py-0.5 max-w-[85px] truncate"
+          >
+            {product.preorderClosed ? "Sold Out" : "Closed"}
+          </Badge>
+        )}
+
         {product.images[0] ? (
           <CloudinaryImage
             src={product.images[0].url}
@@ -50,8 +74,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <p className="text-[var(--color-text-primary)] font-bold text-[0.88rem] m-0">
           {formatNaira(lowestPrice)}
         </p>
-        <p className="text-[var(--color-text-muted)] text-[0.68rem] m-0">
-          Pre-order
+        <p className="text-[var(--color-text-muted)] text-[0.68rem] m-0 font-medium">
+          {isOpen
+            ? "Pre-order"
+            : product.preorderClosed
+              ? "Sold Out"
+              : "Pre-order Closed"}
         </p>
       </div>
     </Link>
