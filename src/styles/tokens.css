@@ -1,32 +1,32 @@
 :root[data-theme="light"] {
-  --color-bg: #fafaf8;
-  --color-surface: #f2f1ee;
-  --color-surface-raised: #ffffff;
-  --color-text-primary: #111110;
-  --color-text-secondary: #5a5a56;
-  --color-text-muted: #9a9a94;
-  --color-accent: #c8973a;
-  --color-accent-hover: #a87b28;
-  --color-accent-fg: #ffffff;
-  --color-border: #e2e1dc;
-  --color-border-strong: #c8c7c0;
+  --color-bg: #FFF7E4;
+  --color-surface: #F5EBD3;
+  --color-surface-raised: #FFFFFF;
+  --color-text-primary: #000000;
+  --color-text-secondary: #013920;
+  --color-text-muted: #6B665A;
+  --color-accent: #013920;
+  --color-accent-hover: #025A33;
+  --color-accent-fg: #70F250;
+  --color-border: #E6DCBE;
+  --color-border-strong: #D4C79F;
   --color-error: #c0392b;
   --color-success: #1e7a4a;
   --color-warning: #b7791f;
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #0e0d0c;
-  --color-surface: #1a1917;
-  --color-surface-raised: #242220;
-  --color-text-primary: #f0efe8;
-  --color-text-secondary: #a8a89e;
-  --color-text-muted: #6a6a62;
-  --color-accent: #d4a44a;
-  --color-accent-hover: #e8bc6a;
-  --color-accent-fg: #0e0d0c;
-  --color-border: #2c2b28;
-  --color-border-strong: #3e3d38;
+  --color-bg: #000000;
+  --color-surface: #0B1A12;
+  --color-surface-raised: #013920;
+  --color-text-primary: #FFF7E4;
+  --color-text-secondary: #D9D2BF;
+  --color-text-muted: #8F8C82;
+  --color-accent: #70F250;
+  --color-accent-hover: #8CF56F;
+  --color-accent-fg: #000000;
+  --color-border: #1B2E24;
+  --color-border-strong: #2A4738;
   --color-error: #e57373;
   --color-success: #4caf82;
   --color-warning: #f0b429;
