@@ -1,20 +1,16 @@
+import { buildCloudinaryUrl } from "./cloudinary";
+
 type CloudinaryLoaderProps = {
   src: string;
   width: number;
   quality?: number;
 };
 
+// Next.js custom image loader delegating to centralized Cloudinary URL builder.
 export default function cloudinaryLoader({
   src,
   width,
   quality,
 }: CloudinaryLoaderProps): string {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const params = [
-    "f_auto",
-    "c_limit",
-    `w_${width}`,
-    `q_${quality ?? "auto"}`,
-  ].join(",");
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${params}/${src}`;
+  return buildCloudinaryUrl(src, { width, quality });
 }
