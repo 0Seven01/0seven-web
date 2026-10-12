@@ -36,6 +36,7 @@ export interface Product {
   variants: Variant[];
   featured: boolean;
   active: boolean;
+  preorderClosed?: boolean;
 }
 
 export interface Category {
