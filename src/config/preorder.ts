@@ -50,9 +50,130 @@ export const PREORDER_CONFIG = {
 
 export type PreorderConfig = typeof PREORDER_CONFIG;
 
-export function isPreorderOpen(now: Date = new Date()): boolean {
-  const close = Date.parse(PREORDER_CONFIG.cutoff.value);
-  return Number.isFinite(close) && now.getTime() < close;
+export interface PreorderCheckOptions {
+  override?: "open" | "closed" | null;
+  isProduction?: boolean;
+  cutoff?: string | null;
+}
+
+export function parseCutoffTimestamp(
+  cutoff: string | null | undefined
+): number | null {
+  if (!cutoff || typeof cutoff !== "string" || !cutoff.trim()) return null;
+
+  // Enforce ISO 8601 with explicit timezone offset (+01:00, +0100, or Z)
+  const isoPattern =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?([+-]\d{2}:?\d{2}|Z)$/;
+  const match = cutoff.trim().match(isoPattern);
+  if (!match) return null;
+
+  const [, yStr, mStr, dStr, hStr, minStr, sStr] = match;
+  const year = parseInt(yStr, 10);
+  const month = parseInt(mStr, 10);
+  const day = parseInt(dStr, 10);
+  const hour = parseInt(hStr, 10);
+  const minute = parseInt(minStr, 10);
+  const sec = parseInt(sStr, 10);
+
+  if (
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31 ||
+    hour > 23 ||
+    minute > 59 ||
+    sec > 59
+  ) {
+    return null;
+  }
+
+  // Validate calendar validity (e.g. leap years, 30-day months)
+  const testDate = new Date(Date.UTC(year, month - 1, day));
+  if (
+    testDate.getUTCFullYear() !== year ||
+    testDate.getUTCMonth() !== month - 1 ||
+    testDate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  const epoch = Date.parse(cutoff.trim());
+  return Number.isFinite(epoch) ? epoch : null;
+}
+
+export function isProductionEnvironment(
+  options?: PreorderCheckOptions
+): boolean {
+  if (options?.isProduction !== undefined) {
+    return options.isProduction;
+  }
+  if (
+    process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  ) {
+    return true;
+  }
+  if (typeof window !== "undefined") {
+    if (window.location.hostname === "0seven.vercel.app") {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getDevOverride(): "open" | "closed" | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const search = window.location.search;
+    if (!search) return null;
+    const params = new URLSearchParams(search);
+    const val = params.get("preorder");
+    if (val === "closed") return "closed";
+    if (val === "open") return "open";
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+let lastLoggedInvalidCutoff: unknown = undefined;
+
+export function isPreorderOpen(
+  now: Date = new Date(),
+  options?: PreorderCheckOptions
+): boolean {
+  const isProd = isProductionEnvironment(options);
+
+  if (!isProd) {
+    const explicitOverride = options?.override;
+    if (explicitOverride === "closed") return false;
+    if (explicitOverride === "open") return true;
+
+    const urlOverride = getDevOverride();
+    if (urlOverride === "closed") return false;
+    if (urlOverride === "open") return true;
+  }
+
+  const effectiveCutoff =
+    options?.cutoff !== undefined
+      ? options.cutoff
+      : PREORDER_CONFIG.cutoff.value;
+
+  const closeEpoch = parseCutoffTimestamp(effectiveCutoff);
+  if (closeEpoch === null) {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      lastLoggedInvalidCutoff !== effectiveCutoff
+    ) {
+      lastLoggedInvalidCutoff = effectiveCutoff;
+      console.error(
+        `[0Seven preorder] Invalid or missing cutoff timestamp: "${effectiveCutoff}". Pre-orders are closed (fail-closed).`
+      );
+    }
+    return false;
+  }
+
+  return now.getTime() < closeEpoch;
 }
 
 export function hasActivePlaceholders(): boolean {
