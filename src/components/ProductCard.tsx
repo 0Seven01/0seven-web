@@ -1,40 +1,42 @@
 import Link from "next/link";
 import { formatNaira } from "@/lib/format";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 import type { Product } from "@/types/catalog";
 
 interface ProductCardProps {
   product: Product;
+  className?: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, className }: ProductCardProps) {
   const href = `/shop/${product.categorySlug}/${product.slug}`;
   const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
 
   return (
     <Link
       href={href}
-      className="flex flex-col no-underline text-inherit rounded-md overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] min-w-[160px] w-[160px] shrink-0 hover:shadow-md transition-shadow duration-150 group"
+      className={`flex flex-col no-underline text-inherit rounded-md overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] hover:shadow-md transition-shadow duration-150 group ${className || "w-full"}`}
     >
       {/* Image area */}
-      <div 
-        className="relative h-[180px] bg-[var(--color-surface-raised)] flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage: product.images[0]?.blurDataURL ? `url(${product.images[0].blurDataURL})` : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Placeholder until real images Sprint 2 */}
-        <span 
-          className="text-2xl opacity-15 select-none font-bold group-hover:scale-105 transition-transform duration-300"
-          style={{ display: product.images[0]?.blurDataURL ? "none" : "block" }}
-        >
-          0VII
-        </span>
+      <div className="relative aspect-[3/4] w-full bg-[var(--color-surface-raised)] overflow-hidden">
+        {product.images[0] ? (
+          <CloudinaryImage
+            src={product.images[0].url}
+            alt={product.images[0].alt || product.name}
+            swatchHex={product.variants[0]?.colour.hex}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 250px"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[var(--color-text-muted)] text-xs font-semibold">
+            {product.name}
+          </div>
+        )}
 
         {/* Scripture ref badge — top right like discount badge */}
         {product.scriptureRef && (
-          <span className="absolute top-2 right-2 bg-[var(--color-accent)] text-[var(--color-accent-fg)] text-[0.6rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-[0.04em]">
+          <span className="absolute top-2 right-2 z-10 bg-[var(--color-accent)] text-[var(--color-accent-fg)] text-[0.6rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-[0.04em]">
             {product.scriptureRef}
           </span>
         )}

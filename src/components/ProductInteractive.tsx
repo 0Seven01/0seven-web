@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ProductGallery } from "@/components/ProductGallery";
 import { ColourSelector } from "@/components/ColourSelector";
 import { SizeSelector } from "@/components/SizeSelector";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { Badge } from "@/components/ui/Badge";
+import { formatNaira } from "@/lib/format";
 import type { Product, Variant } from "@/types/catalog";
 
 interface ProductInteractiveProps {
@@ -25,20 +28,57 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
       (v) => v.colour.name === selectedColour && v.size === selectedSize
     ) ?? null;
 
+  const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
+  const activeSwatchHex = product.variants.find(
+    (v) => v.colour.name === selectedColour
+  )?.colour.hex;
+
   return (
-    <div className="flex flex-col gap-5">
-      <ColourSelector
-        variants={product.variants}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
+      {/* Product photo gallery filtered by selected colour */}
+      <ProductGallery
+        images={product.images}
         selectedColour={selectedColour}
-        onChange={handleColourChange}
+        productName={product.name}
+        swatchHex={activeSwatchHex}
       />
-      <SizeSelector
-        variants={product.variants}
-        selectedColour={selectedColour}
-        selectedSize={selectedSize}
-        onChange={setSelectedSize}
-      />
-      <AddToCartButton product={product} selectedVariant={selectedVariant} />
+
+      {/* Product details & interactive selections */}
+      <div className="flex flex-col gap-5 sticky top-[100px]">
+        {product.scriptureRef && (
+          <div>
+            <Badge variant="muted">{product.scriptureRef}</Badge>
+          </div>
+        )}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-[1.75rem] md:text-3xl font-bold text-[var(--color-text-primary)] m-0 leading-tight">
+            {product.name}
+          </h1>
+          <p className="text-2xl font-bold text-[var(--color-accent)] m-0">
+            {formatNaira(lowestPrice)}
+          </p>
+        </div>
+        <p className="text-[var(--color-text-secondary)] text-[0.95rem] leading-relaxed m-0">
+          {product.description}
+        </p>
+
+        <hr className="border-[var(--color-border)] w-full my-2" />
+
+        <div className="flex flex-col gap-5">
+          <ColourSelector
+            variants={product.variants}
+            selectedColour={selectedColour}
+            onChange={handleColourChange}
+          />
+          <SizeSelector
+            variants={product.variants}
+            selectedColour={selectedColour}
+            selectedSize={selectedSize}
+            onChange={setSelectedSize}
+          />
+          <AddToCartButton product={product} selectedVariant={selectedVariant} />
+        </div>
+      </div>
     </div>
   );
 }

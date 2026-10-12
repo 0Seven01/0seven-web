@@ -6,6 +6,7 @@ export interface ProductImage {
   alt: string;
   blurDataURL: string;
   sortOrder: number;
+  colourName?: string;
 }
 
 export interface Colour {
@@ -21,6 +22,7 @@ export interface Variant {
   colour: Colour;
   priceKobo: number;
   stock: null; // always null in Phase 0
+  active?: boolean;
 }
 
 export interface Product {
