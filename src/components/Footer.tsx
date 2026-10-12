@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 
 const LINKS = [
   { href: "/about",             label: "About" },
@@ -16,10 +17,14 @@ export function Footer() {
       <div className="max-w-[1200px] mx-auto flex flex-col gap-8">
         {/* Brand */}
         <div>
-          <p className="font-bold text-[1.1rem] tracking-[0.08em] text-[var(--color-text-primary)]">
-            0SEVEN
-          </p>
-          <p className="text-[var(--color-text-muted)] text-[0.85rem] mt-1">
+          <Link
+            href="/"
+            aria-label="0Seven"
+            className="inline-block text-[var(--color-accent)] hover:opacity-90 transition-opacity"
+          >
+            <Logo className="h-7 w-auto" />
+          </Link>
+          <p className="text-[var(--color-text-muted)] text-[0.85rem] mt-2">
             Faith-inspired apparel from Lagos, Nigeria.
           </p>
         </div>
