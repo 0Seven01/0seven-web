@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { usePreorderStatus } from "@/hooks/usePreorderStatus";
-import { PREORDER_CONFIG, formatPreorderCutoff } from "@/config/preorder";
+import {
+  PREORDER_CONFIG,
+  formatPreorderCutoff,
+  formatPreorderClosedMessage,
+} from "@/config/preorder";
 
 export function PreorderBanner() {
   const { isOpen } = usePreorderStatus();
@@ -41,6 +45,8 @@ export function PreorderBanner() {
                 </span>
                 .
               </>
+            ) : !formattedCutoff ? (
+              formatPreorderClosedMessage()
             ) : (
               <>
                 Pre-orders for {eventName} closed on{" "}

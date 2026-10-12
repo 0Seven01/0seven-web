@@ -8,6 +8,7 @@ import {
   formatPreorderCutoff,
   formatPreorderEventDate,
   isProductPreorderOpen,
+  formatPreorderClosedMessage,
 } from "./preorder.ts";
 
 const LAGOS_CUTOFF = "2026-10-18T23:59:59+01:00";
@@ -225,6 +226,40 @@ test("isProductPreorderOpen respects campaign state and per-product preorderClos
   assert.strictEqual(isProductPreorderOpen(normalProduct, false), false);
   assert.strictEqual(isProductPreorderOpen(explicitOpenProduct, false), false);
   assert.strictEqual(isProductPreorderOpen(soldOutProduct, false), false);
+});
+
+test("formatPreorderClosedMessage formats default closed announcement", () => {
+  const msg = formatPreorderClosedMessage();
+  assert.ok(msg.startsWith("Pre-orders for Kairos Camp Meeting 2026 closed on "));
+  assert.ok(msg.includes("18 Oct"));
+  assert.ok(msg.endsWith(". Thank you!"));
+});
+
+test("formatPreorderClosedMessage formats with custom eventName and cutoff", () => {
+  const msg = formatPreorderClosedMessage({
+    eventName: "our 26 October event",
+    cutoff: "2026-10-20T20:00:00+01:00",
+  });
+  assert.ok(msg.startsWith("Pre-orders for our 26 October event closed on "));
+  assert.ok(msg.includes("20 Oct"));
+  assert.ok(msg.endsWith(". Thank you!"));
+});
+
+test("formatPreorderClosedMessage fails closed when cutoff is missing or invalid", () => {
+  const msg1 = formatPreorderClosedMessage({ cutoff: null });
+  assert.strictEqual(
+    msg1,
+    "Pre-orders for Kairos Camp Meeting 2026 are now closed. Thank you!"
+  );
+
+  const msg2 = formatPreorderClosedMessage({
+    eventName: "the 26 October event",
+    cutoff: "invalid-cutoff",
+  });
+  assert.strictEqual(
+    msg2,
+    "Pre-orders for the 26 October event are now closed. Thank you!"
+  );
 });
 
 

@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { usePreorderStatus } from "@/hooks/usePreorderStatus";
-import { isProductPreorderOpen } from "@/config/preorder";
+import {
+  isProductPreorderOpen,
+  formatPreorderClosedMessage,
+} from "@/config/preorder";
 import type { Product, Variant } from "@/types/catalog";
 
 interface AddToCartButtonProps {
@@ -98,9 +101,9 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
       {/* Pre-order notice */}
       <p className="text-[0.75rem] text-[var(--color-text-muted)] text-center m-0">
         {!isProductOpen
-          ? product.preorderClosed
+          ? product.preorderClosed && campaignOpen
             ? "This design is currently sold out."
-            : "Pre-orders have closed for this launch."
+            : formatPreorderClosedMessage()
           : "Pre-order. Payment & delivery confirmed over WhatsApp."}
       </p>
     </div>

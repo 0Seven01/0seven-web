@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { usePreorderStatus } from "@/hooks/usePreorderStatus";
 
 export function RecoveryBanner() {
   const { checkoutInitiated, items, clearCart, dismissRecovery } = useCart();
+  const { isOpen } = usePreorderStatus();
 
-  if (!checkoutInitiated || items.length === 0) return null;
+  if (!isOpen || !checkoutInitiated || items.length === 0) return null;
 
   return (
     <div className="w-full bg-[var(--color-accent)] text-[var(--color-accent-fg)] px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm">
