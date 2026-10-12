@@ -229,7 +229,7 @@ test("WhatsAppCheckout fails closed when WhatsApp number is missing", async () =
       },
       {
         name: "Error",
-        message: "WhatsApp number not configured.",
+        message: "Ordering is temporarily unavailable — please contact us on Instagram.",
       }
     );
   } finally {
@@ -404,11 +404,141 @@ test("getWhatsAppNumber fails closed when environment variable is missing", () =
       },
       {
         name: "Error",
-        message: "WhatsApp number not configured.",
+        message: "Ordering is temporarily unavailable — please contact us on Instagram.",
       }
     );
   } finally {
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+  }
+});
+
+test("getWhatsAppNumber fails closed when environment variable is empty string", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "";
+  try {
+    assert.throws(
+      () => {
+        getWhatsAppNumber();
+      },
+      {
+        name: "Error",
+        message: "Ordering is temporarily unavailable — please contact us on Instagram.",
+      }
+    );
+  } finally {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+  }
+});
+
+test("getWhatsAppNumber fails closed when environment variable is whitespace-only", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "    ";
+  try {
+    assert.throws(
+      () => {
+        getWhatsAppNumber();
+      },
+      {
+        name: "Error",
+        message: "Ordering is temporarily unavailable — please contact us on Instagram.",
+      }
+    );
+  } finally {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+  }
+});
+
+test("getWhatsAppNumber fails closed when environment variable contains placeholder X's", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "234XXXXXXXXXX";
+  try {
+    assert.throws(
+      () => {
+        getWhatsAppNumber();
+      },
+      {
+        name: "Error",
+        message: "Ordering is temporarily unavailable — please contact us on Instagram.",
+      }
+    );
+  } finally {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+  }
+});
+
+test("getWhatsAppNumber fails closed when environment variable is malformed (non-digits or invalid length)", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const invalidNumbers = ["12345", "not-a-phone", "080123", "234703430618799999"];
+  for (const invalid of invalidNumbers) {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = invalid;
+    try {
+      assert.throws(
+        () => {
+          getWhatsAppNumber();
+        },
+        {
+          name: "Error",
+          message: "Ordering is temporarily unavailable — please contact us on Instagram.",
+        }
+      );
+    } finally {
+      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+    }
+  }
+});
+
+test("getWhatsAppNumber normalizes formatted number (strips +, spaces, hyphens)", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const formattedVariations = [
+    "+234 703 430 6187",
+    "+234-703-430-6187",
+    "(+234) 703 430 6187",
+    "234 703 430 6187",
+  ];
+  for (const formatted of formattedVariations) {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = formatted;
+    try {
+      assert.strictEqual(getWhatsAppNumber(), "2347034306187");
+    } finally {
+      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+    }
+  }
+});
+
+test("WhatsAppCheckout fails closed when WhatsApp number is malformed or placeholder", async () => {
+  const checkout = new WhatsAppCheckout();
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const originalDescriptor = Object.getOwnPropertyDescriptor(
+    globalThis.navigator,
+    "onLine"
+  );
+
+  Object.defineProperty(globalThis.navigator, "onLine", {
+    value: true,
+    configurable: true,
+    writable: true,
+  });
+
+  const badNumbers = ["234XXXXXXXXXX", "malformed-number", "   ", ""];
+  for (const badNumber of badNumbers) {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = badNumber;
+    try {
+      await assert.rejects(
+        async () => {
+          await checkout.checkout([]);
+        },
+        {
+          name: "Error",
+          message: "Ordering is temporarily unavailable — please contact us on Instagram.",
+        }
+      );
+    } finally {
+      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+    }
+  }
+
+  if (originalDescriptor) {
+    Object.defineProperty(globalThis.navigator, "onLine", originalDescriptor);
   }
 });
 
