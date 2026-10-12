@@ -24,9 +24,11 @@ export default function CartPage() {
     removeItem,
     updateQuantity,
     clearCart,
+    getOrCreateOrderReference,
   } = useCart();
   const { isOnline } = useNetworkStatus();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const clearFieldError = (field: keyof CustomerDetails) => {
     if (formErrors[field]) {
@@ -38,7 +40,8 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    setCheckoutError(null);
     const result = customerDetailsSchema.safeParse(customer);
     if (!result.success) {
       const errors: Record<string, string> = {};
@@ -67,7 +70,16 @@ export default function CartPage() {
     }
 
     setFormErrors({});
-    checkout.checkout(items, customer);
+    try {
+      const reference = getOrCreateOrderReference();
+      await checkout.checkout(items, customer, { reference });
+    } catch (err) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Unable to initiate WhatsApp checkout.";
+      setCheckoutError(msg);
+    }
   };
 
   if (items.length === 0) {
@@ -157,6 +169,15 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>{formatNaira(totalKobo)}</span>
               </div>
+
+              {checkoutError && (
+                <div
+                  role="alert"
+                  className="p-3 mb-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-error)] text-[var(--color-error)] text-xs font-medium"
+                >
+                  {checkoutError}
+                </div>
+              )}
 
               {isOnline ? (
                 <Button variant="accent" size="lg" className="w-full mb-4" onClick={handleCheckout}>
