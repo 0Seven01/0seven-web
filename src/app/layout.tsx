@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CartProvider } from "@/context/CartContext";
@@ -10,10 +11,27 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-body",
+});
+
+const alro = localFont({
+  src: [
+    {
+      path: "../../public/fonts/alro-regular-400.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/alro-bold-700.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  display: "swap",
+  variable: "--font-heading",
 });
 
 export const viewport: Viewport = {
@@ -67,7 +85,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} flex flex-col min-h-screen`}>
+      <body className={`${manrope.variable} ${alro.variable} flex flex-col min-h-screen`}>
         <ThemeProvider
           attribute="data-theme"
           defaultTheme="system"
