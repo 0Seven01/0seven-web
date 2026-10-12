@@ -329,3 +329,58 @@ test("WhatsAppCheckout constructs and URL-encodes complete wa.me link with recov
     if (originalOpen) globalThis.window.open = originalOpen;
   }
 });
+
+test("WhatsAppCheckout fails closed when pre-orders are closed", async () => {
+  const checkout = new WhatsAppCheckout();
+  const mockCart = [
+    {
+      variantId: "v-test",
+      productId: "test-product",
+      productName: "Test Product",
+      slug: "test-product",
+      categorySlug: "t-shirts",
+      size: "M",
+      colourName: "Black",
+      colourHex: "#000000",
+      priceKobo: 1500000,
+      quantity: 1,
+      imageUrl: "test-img",
+    },
+  ];
+
+  const originalWindow = globalThis.window;
+  const originalEnv = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const originalDescriptor = Object.getOwnPropertyDescriptor(
+    globalThis.navigator,
+    "onLine"
+  );
+
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "2347034306187";
+  Object.defineProperty(globalThis.navigator, "onLine", {
+    value: true,
+    configurable: true,
+  });
+  globalThis.window = {
+    location: { search: "?preorder=closed", hostname: "localhost" },
+    open: () => {},
+  };
+
+  try {
+    await assert.rejects(
+      async () => {
+        await checkout.checkout(mockCart);
+      },
+      {
+        message: "Pre-orders have closed for this campaign.",
+      }
+    );
+  } finally {
+    globalThis.window = originalWindow;
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalEnv;
+    if (originalDescriptor) {
+      Object.defineProperty(globalThis.navigator, "onLine", originalDescriptor);
+    }
+  }
+});
+
+
