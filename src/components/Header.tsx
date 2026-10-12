@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useTheme } from "next-themes";
 import { useState, useSyncExternalStore } from "react";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { Logo } from "@/components/ui/Logo";
 
 const NAV_LINKS = [
   { href: "/shop",              label: "Shop" },
@@ -44,9 +45,10 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-bold text-xl tracking-[0.08em] text-[var(--color-text-primary)]"
+          aria-label="0Seven"
+          className="flex items-center text-[var(--color-accent)] hover:opacity-90 transition-opacity"
         >
-          0SEVEN
+          <Logo className="h-7 w-auto" />
         </Link>
 
         {/* Desktop nav */}
