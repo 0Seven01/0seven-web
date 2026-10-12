@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { formatNaira } from "@/lib/format";
-import { WhatsAppCheckout } from "@/lib/checkout";
+import { formatNaira, formatWhatsAppNumber } from "@/lib/format";
+import {
+  WhatsAppCheckout,
+  buildPreorderMessage,
+  getWhatsAppNumber,
+} from "@/lib/checkout";
+import { copyToClipboard } from "@/lib/clipboard";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
@@ -32,6 +37,62 @@ export default function CartPage() {
   const { isOpen } = usePreorderStatus();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [isFallbackOpen, setIsFallbackOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "manual-copy">("idle");
+  const [liveAnnouncement, setLiveAnnouncement] = useState("");
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
+  let whatsappNumber = "";
+  try {
+    whatsappNumber = getWhatsAppNumber();
+  } catch {
+    whatsappNumber = "";
+  }
+  const formattedWhatsAppNumber = formatWhatsAppNumber(whatsappNumber);
+
+  const orderMessage =
+    items.length > 0
+      ? buildPreorderMessage({
+          cart: items,
+          customer,
+          reference: getOrCreateOrderReference(),
+        })
+      : "";
+
+  const handleCopy = async () => {
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    const result = await copyToClipboard(orderMessage, textareaRef.current);
+    if (result.success) {
+      setCopyStatus("copied");
+      setLiveAnnouncement("Order text copied to clipboard.");
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopyStatus("idle");
+      }, 2500);
+    } else {
+      setCopyStatus("manual-copy");
+      setLiveAnnouncement(
+        "Automatic copy failed. Order text is selected above — press Ctrl+C or tap to copy."
+      );
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopyStatus("idle");
+      }, 5000);
+    }
+  };
+
+  const handleMobileFallbackClick = () => {
+    setIsFallbackOpen(true);
+    const el = document.getElementById("whatsapp-fallback-panel");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const clearFieldError = (field: keyof CustomerDetails) => {
     if (formErrors[field]) {
@@ -104,11 +165,11 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] py-12 px-4 pb-28 lg:pb-12">
+    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] py-12 px-4 pb-28 md:pb-12">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Your Cart ({itemCount} items)</h1>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-6 xl:gap-8">
           <div className="flex-1 space-y-6">
             <div className="space-y-4">
               {items.map((item) => (
@@ -169,7 +230,7 @@ export default function CartPage() {
             />
           </div>
 
-          <div className="w-full lg:w-80">
+          <div className="w-full md:w-72 xl:w-80">
             <Card variant="elevated" padding="md" className="sticky top-8">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
               <div className="flex justify-between font-bold text-lg mb-6 border-t border-[var(--color-border)] pt-4">
@@ -206,9 +267,88 @@ export default function CartPage() {
                   </Button>
                 </div>
               ) : isOnline ? (
-                <Button variant="accent" size="lg" className="w-full mb-4" onClick={handleCheckout}>
-                  Order on WhatsApp
-                </Button>
+                <div className="mb-4">
+                  <Button variant="accent" size="lg" className="w-full mb-3" onClick={handleCheckout}>
+                    Order on WhatsApp
+                  </Button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsFallbackOpen(!isFallbackOpen)}
+                    aria-expanded={isFallbackOpen}
+                    aria-controls="whatsapp-fallback-panel"
+                    className="w-full text-center text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] underline min-h-[44px] flex items-center justify-center cursor-pointer transition-colors"
+                  >
+                    {isFallbackOpen ? "Hide order text" : "WhatsApp didn't open?"}
+                  </button>
+
+                  {isFallbackOpen && (
+                    <div
+                      id="whatsapp-fallback-panel"
+                      role="region"
+                      aria-label="WhatsApp order text fallback"
+                      className="mt-3 p-3.5 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] space-y-3 text-left"
+                    >
+                      <p className="text-xs text-[var(--color-text-secondary)] m-0">
+                        If WhatsApp didn&apos;t launch, copy your order text and send it directly to our WhatsApp number:
+                      </p>
+
+                      {formattedWhatsAppNumber ? (
+                        <div className="flex flex-col gap-0.5 text-xs">
+                          <span className="font-semibold text-[var(--color-text-primary)]">
+                            WhatsApp:{" "}
+                            <a
+                              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderMessage)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-mono"
+                            >
+                              {formattedWhatsAppNumber}
+                            </a>
+                          </span>
+                          <a
+                            href={`tel:+${whatsappNumber}`}
+                            className="text-[0.75rem] text-[var(--color-text-muted)] hover:underline"
+                          >
+                            Tap to dial: +{whatsappNumber}
+                          </a>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-[var(--color-error)] m-0">
+                          WhatsApp number not configured.
+                        </p>
+                      )}
+
+                      <textarea
+                        ref={textareaRef}
+                        readOnly
+                        rows={6}
+                        value={orderMessage}
+                        aria-label="Order summary message"
+                        className="w-full p-2.5 text-xs font-mono bg-[var(--color-surface-raised)] border border-[var(--color-border)] rounded-md text-[var(--color-text-primary)] resize-none focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+                      />
+
+                      <Button
+                        variant={copyStatus === "copied" ? "accent" : "secondary"}
+                        size="sm"
+                        onClick={handleCopy}
+                        className="w-full min-h-[44px] text-xs font-semibold"
+                      >
+                        {copyStatus === "copied" ? "✓ Order text copied!" : "Copy Order Text"}
+                      </Button>
+
+                      {copyStatus === "manual-copy" && (
+                        <p className="text-xs text-[var(--color-warning)] font-medium m-0">
+                          Automatic copy failed. The text is selected above — press Ctrl+C or tap to copy.
+                        </p>
+                      )}
+
+                      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+                        {liveAnnouncement}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="p-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-center mb-4">
                   <p className="font-semibold text-[var(--color-text-primary)] m-0 mb-1">
@@ -236,7 +376,7 @@ export default function CartPage() {
       </div>
 
       {/* Sticky mobile checkout bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[var(--color-surface)] border-t border-[var(--color-border)] p-4 shadow-lg flex items-center justify-between gap-4">
+      <div className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-[var(--color-surface)] border-t border-[var(--color-border)] p-4 shadow-lg flex items-center justify-between gap-4">
         <div>
           <span className="text-xs text-[var(--color-text-secondary)] block">
             {itemCount} {itemCount === 1 ? "item" : "items"}
@@ -255,14 +395,23 @@ export default function CartPage() {
             Pre-orders Closed
           </Button>
         ) : isOnline ? (
-          <Button
-            variant="accent"
-            size="md"
-            onClick={handleCheckout}
-            className="font-bold shrink-0 min-h-[44px]"
-          >
-            Order on WhatsApp
-          </Button>
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <Button
+              variant="accent"
+              size="md"
+              onClick={handleCheckout}
+              className="font-bold min-h-[44px]"
+            >
+              Order on WhatsApp
+            </Button>
+            <button
+              type="button"
+              onClick={handleMobileFallbackClick}
+              className="text-[0.75rem] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] underline cursor-pointer p-0.5"
+            >
+              WhatsApp didn&apos;t open?
+            </button>
+          </div>
         ) : (
           <span className="text-xs text-[var(--color-text-muted)] text-right">
             Go online to order
