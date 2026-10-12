@@ -5,6 +5,7 @@ import {
   parseCutoffTimestamp,
   isProductionEnvironment,
   PREORDER_CONFIG,
+  formatPreorderCutoff,
 } from "./preorder.ts";
 
 const LAGOS_CUTOFF = "2026-10-18T23:59:59+01:00";
@@ -118,6 +119,30 @@ test("dev override ?preorder=open forces open state in preview/dev environment",
   );
 });
 
+test("override: null explicitly suppresses dev overrides and evaluates cutoff", () => {
+  const beforeCutoff = new Date(CUTOFF_EPOCH - 100000);
+  assert.strictEqual(
+    isPreorderOpen(beforeCutoff, {
+      cutoff: LAGOS_CUTOFF,
+      override: null,
+      isProduction: false,
+    }),
+    true,
+    "override: null must bypass dev URL override and return true when before cutoff"
+  );
+
+  const afterCutoff = new Date(CUTOFF_EPOCH + 100000);
+  assert.strictEqual(
+    isPreorderOpen(afterCutoff, {
+      cutoff: LAGOS_CUTOFF,
+      override: null,
+      isProduction: false,
+    }),
+    false,
+    "override: null must bypass dev URL override and return false when after cutoff"
+  );
+});
+
 test("dev override is strictly ignored in production environment (tamper resistance)", () => {
   const beforeCutoff = new Date(CUTOFF_EPOCH - 100000);
   assert.strictEqual(
@@ -152,4 +177,23 @@ test("isProductionEnvironment respects explicit options flag", () => {
   assert.strictEqual(isProductionEnvironment({ isProduction: true }), true);
   assert.strictEqual(isProductionEnvironment({ isProduction: false }), false);
 });
+
+test("formatPreorderCutoff formats Africa/Lagos cutoff date correctly", () => {
+  const formatted = formatPreorderCutoff(LAGOS_CUTOFF);
+  assert.ok(formatted.includes("18 Oct"), `Expected date string to include "18 Oct", got: "${formatted}"`);
+  assert.ok(formatted.includes("11:59"), `Expected date string to include "11:59", got: "${formatted}"`);
+  assert.strictEqual(formatted, formatPreorderCutoff(), "Default cutoff call must match explicit LAGOS_CUTOFF call");
+});
+
+test("formatPreorderCutoff returns empty string for missing or invalid cutoff", () => {
+  assert.strictEqual(formatPreorderCutoff(null), "");
+  assert.strictEqual(formatPreorderCutoff(""), "");
+  assert.strictEqual(formatPreorderCutoff("invalid-date"), "");
+});
+
+test("PREORDER_CONFIG.eventName is configured with Kairos Camp Meeting 2026 placeholder", () => {
+  assert.strictEqual(PREORDER_CONFIG.eventName.value, "Kairos Camp Meeting 2026");
+  assert.strictEqual(PREORDER_CONFIG.eventName.isPlaceholder, true);
+});
+
 

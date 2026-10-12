@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { PreorderBanner } from "@/components/PreorderBanner";
 
 export const metadata: Metadata = {
   title: "0Seven — Faith-Inspired Apparel",
@@ -19,6 +20,8 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)]">
+      <PreorderBanner />
+
       {/* Hero */}
       <section data-section="hero" className="py-24 px-4 text-center flex flex-col items-center">
         <h1 className="text-5xl font-extrabold tracking-tight mb-4 text-[var(--color-text-primary)]">Wear Your Faith.</h1>

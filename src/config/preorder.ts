@@ -32,7 +32,7 @@ export const PREORDER_CONFIG = {
     "Pre-order cutoff timestamp (Africa/Lagos)"
   ),
   eventDate: confirmed("2026-10-26", "Event date (YYYY-MM-DD)"),
-  eventName: placeholder("our 26 October event", "Public event name"),
+  eventName: placeholder("Kairos Camp Meeting 2026", "Public event name"),
   paymentWording: placeholder(
     "Full payment by bank transfer after confirmation",
     "Payment instructions copy"
@@ -145,13 +145,15 @@ export function isPreorderOpen(
   const isProd = isProductionEnvironment(options);
 
   if (!isProd) {
-    const explicitOverride = options?.override;
-    if (explicitOverride === "closed") return false;
-    if (explicitOverride === "open") return true;
-
-    const urlOverride = getDevOverride();
-    if (urlOverride === "closed") return false;
-    if (urlOverride === "open") return true;
+    if (options?.override !== undefined) {
+      if (options.override === "closed") return false;
+      if (options.override === "open") return true;
+      // options.override === null: explicitly suppress dev override, evaluate cutoff
+    } else {
+      const urlOverride = getDevOverride();
+      if (urlOverride === "closed") return false;
+      if (urlOverride === "open") return true;
+    }
   }
 
   const effectiveCutoff =
@@ -193,3 +195,22 @@ export function getPlaceholderAudit(): Array<{
       value: item.value,
     }));
 }
+
+export function formatPreorderCutoff(cutoff?: string | null): string {
+  const rawCutoff =
+    cutoff !== undefined ? cutoff : PREORDER_CONFIG.cutoff.value;
+  const epoch = parseCutoffTimestamp(rawCutoff);
+  if (epoch === null) return "";
+
+  const date = new Date(epoch);
+  return new Intl.DateTimeFormat("en-NG", {
+    timeZone: "Africa/Lagos",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date);
+}
+
