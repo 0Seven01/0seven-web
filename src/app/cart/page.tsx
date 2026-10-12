@@ -28,6 +28,7 @@ export default function CartPage() {
     totalKobo,
     itemCount,
     customer,
+    orderReference,
     removeItem,
     updateQuantity,
     clearCart,
@@ -49,6 +50,12 @@ export default function CartPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (items.length > 0 && !orderReference) {
+      getOrCreateOrderReference();
+    }
+  }, [items.length, orderReference, getOrCreateOrderReference]);
+
   let whatsappNumber = "";
   try {
     whatsappNumber = getWhatsAppNumber();
@@ -57,18 +64,27 @@ export default function CartPage() {
   }
   const formattedWhatsAppNumber = formatWhatsAppNumber(whatsappNumber);
 
+  const activeOrderReference = orderReference || "";
   const orderMessage =
-    items.length > 0
+    items.length > 0 && activeOrderReference
       ? buildPreorderMessage({
           cart: items,
           customer,
-          reference: getOrCreateOrderReference(),
+          reference: activeOrderReference,
         })
       : "";
 
   const handleCopy = async () => {
     if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-    const result = await copyToClipboard(orderMessage, textareaRef.current);
+    const ref = orderReference || getOrCreateOrderReference();
+    const messageToCopy =
+      orderMessage ||
+      buildPreorderMessage({
+        cart: items,
+        customer,
+        reference: ref,
+      });
+    const result = await copyToClipboard(messageToCopy, textareaRef.current);
     if (result.success) {
       setCopyStatus("copied");
       setLiveAnnouncement("Order text copied to clipboard.");
@@ -87,6 +103,9 @@ export default function CartPage() {
   };
 
   const handleMobileFallbackClick = () => {
+    if (!orderReference) {
+      getOrCreateOrderReference();
+    }
     setIsFallbackOpen(true);
     const el = document.getElementById("whatsapp-fallback-panel");
     if (el) {
@@ -147,6 +166,10 @@ export default function CartPage() {
           ? err.message
           : "Unable to initiate WhatsApp checkout.";
       setCheckoutError(msg);
+      const summaryEl = document.getElementById("order-summary");
+      if (summaryEl) {
+        summaryEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
   };
 
@@ -231,7 +254,7 @@ export default function CartPage() {
           </div>
 
           <div className="w-full md:w-72 xl:w-80">
-            <Card variant="elevated" padding="md" className="sticky top-8">
+            <Card variant="elevated" padding="md" className="sticky top-8" id="order-summary">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
               <div className="flex justify-between font-bold text-lg mb-6 border-t border-[var(--color-border)] pt-4">
                 <span>Total</span>
@@ -241,9 +264,19 @@ export default function CartPage() {
               {checkoutError && (
                 <div
                   role="alert"
-                  className="p-3 mb-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-error)] text-[var(--color-error)] text-xs font-medium"
+                  className="p-3.5 mb-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-error)] text-[var(--color-error)] text-xs font-medium space-y-1"
                 >
-                  {checkoutError}
+                  <p className="m-0">{checkoutError}</p>
+                  {checkoutError.includes("Instagram") && (
+                    <a
+                      href="https://instagram.com/0seven"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block underline font-semibold text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] pt-0.5"
+                    >
+                      Contact @0seven on Instagram →
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -274,7 +307,10 @@ export default function CartPage() {
 
                   <button
                     type="button"
-                    onClick={() => setIsFallbackOpen(!isFallbackOpen)}
+                    onClick={() => {
+                      if (!orderReference) getOrCreateOrderReference();
+                      setIsFallbackOpen(!isFallbackOpen);
+                    }}
                     aria-expanded={isFallbackOpen}
                     aria-controls="whatsapp-fallback-panel"
                     className="w-full text-center text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] underline min-h-[44px] flex items-center justify-center cursor-pointer transition-colors"
@@ -314,9 +350,19 @@ export default function CartPage() {
                           </a>
                         </div>
                       ) : (
-                        <p className="text-xs text-[var(--color-error)] m-0">
-                          WhatsApp number not configured.
-                        </p>
+                        <div className="text-xs text-[var(--color-error)] m-0 space-y-1">
+                          <p className="m-0 font-medium">
+                            Ordering is temporarily unavailable — please contact us on Instagram.
+                          </p>
+                          <a
+                            href="https://instagram.com/0seven"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block underline text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold"
+                          >
+                            @0seven on Instagram →
+                          </a>
+                        </div>
                       )}
 
                       <textarea
