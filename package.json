@@ -7,7 +7,8 @@
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "build": "node scripts/check-placeholders.mjs && next build --webpack",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --test src/**/*.test.mjs"
   },
   "dependencies": {
     "next": "16.3.3",
