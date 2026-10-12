@@ -4,8 +4,8 @@
   "description": "Nigerian DTC faith-inspired apparel. Order on WhatsApp.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0E0D0C",
-  "theme_color": "#C8973A",
+  "background_color": "#000000",
+  "theme_color": "#013920",
   "orientation": "portrait-primary",
   "icons": [
     {

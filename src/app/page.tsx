@@ -92,7 +92,7 @@ export default async function HomePage() {
           <h2 className="text-3xl font-bold mb-4">Get 10% Off Your First Order</h2>
           <p className="mb-8 opacity-90">Join the community. We&apos;ll send your discount straight to your inbox.</p>
           <form className="flex flex-col sm:flex-row gap-3">
-            <Input type="email" placeholder="your@email.com" required className="flex-1 bg-white text-black border-transparent" />
+            <Input type="email" placeholder="your@email.com" required className="flex-1 bg-[var(--color-surface-raised)] text-[var(--color-text-primary)] border-transparent" />
             <Button type="submit" variant="primary" className="bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]">Claim 10% Off</Button>
           </form>
         </div>
