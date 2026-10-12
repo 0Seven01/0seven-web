@@ -11,6 +11,8 @@ import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 import { CartCustomerForm } from "@/components/CartCustomerForm";
 import { customerDetailsSchema } from "@/lib/validation/customer";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { usePreorderStatus } from "@/hooks/usePreorderStatus";
+import { formatPreorderClosedMessage } from "@/config/preorder";
 import type { CustomerDetails } from "@/types/customer";
 
 const checkout = new WhatsAppCheckout();
@@ -27,6 +29,7 @@ export default function CartPage() {
     getOrCreateOrderReference,
   } = useCart();
   const { isOnline } = useNetworkStatus();
+  const { isOpen } = usePreorderStatus();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
@@ -42,6 +45,10 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     setCheckoutError(null);
+    if (!isOpen) {
+      setCheckoutError(formatPreorderClosedMessage());
+      return;
+    }
     const result = customerDetailsSchema.safeParse(customer);
     if (!result.success) {
       const errors: Record<string, string> = {};
@@ -179,7 +186,26 @@ export default function CartPage() {
                 </div>
               )}
 
-              {isOnline ? (
+              {!isOpen ? (
+                <div className="mb-4">
+                  <div className="p-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-center mb-3">
+                    <p className="font-semibold text-[var(--color-text-primary)] m-0 mb-1">
+                      Pre-orders Closed
+                    </p>
+                    <p className="text-[var(--color-text-secondary)] text-[0.85rem] m-0">
+                      {formatPreorderClosedMessage()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="accent"
+                    size="lg"
+                    className="w-full opacity-50 cursor-not-allowed"
+                    disabled
+                  >
+                    Pre-orders Closed
+                  </Button>
+                </div>
+              ) : isOnline ? (
                 <Button variant="accent" size="lg" className="w-full mb-4" onClick={handleCheckout}>
                   Order on WhatsApp
                 </Button>
@@ -219,7 +245,16 @@ export default function CartPage() {
             {formatNaira(totalKobo)}
           </span>
         </div>
-        {isOnline ? (
+        {!isOpen ? (
+          <Button
+            variant="accent"
+            size="md"
+            disabled
+            className="font-bold shrink-0 min-h-[44px] opacity-50 cursor-not-allowed"
+          >
+            Pre-orders Closed
+          </Button>
+        ) : isOnline ? (
           <Button
             variant="accent"
             size="md"

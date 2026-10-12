@@ -55,11 +55,9 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
         <div className="flex items-center gap-2 flex-wrap">
           {isProductOpen ? (
             <Badge variant="accent">Pre-order</Badge>
-          ) : (
-            <Badge variant="muted">
-              {product.preorderClosed ? "Sold Out" : "Pre-order Closed"}
-            </Badge>
-          )}
+          ) : campaignOpen && product.preorderClosed ? (
+            <Badge variant="muted">Sold Out</Badge>
+          ) : null}
           {product.scriptureRef && (
             <Badge variant="muted">{product.scriptureRef}</Badge>
           )}
@@ -73,7 +71,7 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
             <p className="text-2xl font-bold text-[var(--color-accent)] m-0">
               {formatNaira(lowestPrice)}
             </p>
-            {eventDateFormatted && (
+            {isProductOpen && eventDateFormatted && (
               <span className="text-xs text-[var(--color-text-muted)] font-medium">
                 • Ships for the {eventDateFormatted} event
               </span>

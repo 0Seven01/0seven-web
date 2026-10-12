@@ -1,7 +1,11 @@
 import type { CartItem } from "../context/CartContext.tsx";
 import type { CustomerDetails } from "../types/customer.ts";
 import { formatNaira } from "./format.ts";
-import { PREORDER_CONFIG, formatPreorderEventDate } from "../config/preorder.ts";
+import {
+  PREORDER_CONFIG,
+  formatPreorderEventDate,
+  isPreorderOpen,
+} from "../config/preorder.ts";
 
 export const UNAMBIGUOUS_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
@@ -100,6 +104,10 @@ export class WhatsAppCheckout implements CheckoutProvider {
   ): Promise<void> {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       throw new Error("Cannot checkout while offline.");
+    }
+
+    if (!isPreorderOpen()) {
+      throw new Error("Pre-orders have closed for this campaign.");
     }
 
     const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;

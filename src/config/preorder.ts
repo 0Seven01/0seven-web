@@ -113,7 +113,7 @@ export function isProductionEnvironment(
   ) {
     return true;
   }
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && window.location) {
     if (window.location.hostname === "0seven.vercel.app") {
       return true;
     }
@@ -122,7 +122,7 @@ export function isProductionEnvironment(
 }
 
 function getDevOverride(): "open" | "closed" | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined" || !window.location) return null;
   try {
     const search = window.location.search;
     if (!search) return null;
@@ -239,6 +239,22 @@ export function isProductPreorderOpen(
 ): boolean {
   if (!campaignOpen) return false;
   return !product.preorderClosed;
+}
+
+export function formatPreorderClosedMessage(options?: {
+  eventName?: string | null;
+  cutoff?: string | null;
+}): string {
+  const eventName =
+    options?.eventName !== undefined && options?.eventName !== null
+      ? options.eventName
+      : PREORDER_CONFIG.eventName.value;
+  const cutoffFormatted = formatPreorderCutoff(options?.cutoff);
+
+  if (!cutoffFormatted) {
+    return `Pre-orders for ${eventName} are now closed. Thank you!`;
+  }
+  return `Pre-orders for ${eventName} closed on ${cutoffFormatted}. Thank you!`;
 }
 
 

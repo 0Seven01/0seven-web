@@ -34,14 +34,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
           >
             Pre-order
           </Badge>
-        ) : (
+        ) : campaignOpen && product.preorderClosed ? (
           <Badge
             variant="muted"
             className="absolute top-2 left-2 z-10 text-[0.625rem] px-1.5 py-0.5 max-w-[85px] truncate"
           >
-            {product.preorderClosed ? "Sold Out" : "Closed"}
+            Sold Out
           </Badge>
-        )}
+        ) : null}
 
         {product.images[0] ? (
           <CloudinaryImage
@@ -77,7 +77,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <p className="text-[var(--color-text-muted)] text-[0.68rem] m-0 font-medium">
           {isOpen
             ? "Pre-order"
-            : product.preorderClosed
+            : product.preorderClosed && campaignOpen
               ? "Sold Out"
               : "Pre-order Closed"}
         </p>
