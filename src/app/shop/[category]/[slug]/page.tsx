@@ -26,8 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(category, slug);
   if (!product) return {};
 
-  const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo)) / 100;
-
   return {
     title: product.name,
     description: `${product.description}${product.scriptureRef ? ` — ${product.scriptureRef}` : ""}`,

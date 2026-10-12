@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { formatNaira } from "@/lib/format";
 import { WhatsAppCheckout } from "@/lib/checkout";
@@ -20,9 +21,9 @@ export default function CartPage() {
         <div className="text-center max-w-md w-full">
           <h1 className="text-3xl font-bold mb-4">Your Cart</h1>
           <p className="text-[var(--color-text-secondary)] mb-8">Your cart is empty.</p>
-          <a href="/shop">
+          <Link href="/shop">
             <Button variant="accent" size="lg" className="w-full">Browse products</Button>
-          </a>
+          </Link>
         </div>
       </main>
     );
@@ -70,7 +71,7 @@ export default function CartPage() {
               ) : (
                 <div className="p-4 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-center mb-4">
                   <p className="font-semibold text-[var(--color-text-primary)] m-0 mb-1">
-                    You're offline.
+                    You&apos;re offline.
                   </p>
                   <p className="text-[var(--color-text-muted)] text-[0.85rem] m-0">
                     Connect to place your order — your cart is saved.

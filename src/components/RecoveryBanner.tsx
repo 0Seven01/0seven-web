@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export function RecoveryBanner() {
@@ -10,15 +11,15 @@ export function RecoveryBanner() {
   return (
     <div className="w-full bg-[var(--color-accent)] text-[var(--color-accent-fg)] px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm">
       <p className="font-medium">
-        Your previous order hasn't been sent yet. Your cart is saved.
+        Your previous order hasn&apos;t been sent yet. Your cart is saved.
       </p>
       <div className="flex gap-3 shrink-0">
-        <a
+        <Link
           href="/cart"
           className="underline font-semibold"
         >
           Continue order
-        </a>
+        </Link>
         <button
           onClick={clearCart}
           className="underline opacity-80"

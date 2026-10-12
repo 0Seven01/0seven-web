@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 const NAV_LINKS = [
@@ -16,15 +16,14 @@ const NAV_LINKS = [
   { href: "/contact",           label: "Contact" },
 ];
 
+const emptySubscribe = () => () => {};
+
 export function Header() {
   const { itemCount } = useCart();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { isOnline } = useNetworkStatus();
-
-  // Prevent hydration mismatch on theme icon
-  useEffect(() => setMounted(true), []);
 
   const closeMenu = () => setMenuOpen(false);
 
