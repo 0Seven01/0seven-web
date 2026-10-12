@@ -9,7 +9,7 @@ import {
   formatPreorderEventDate,
   isProductPreorderOpen,
   formatPreorderClosedMessage,
-} from "./preorder.ts";
+} from "../src/config/preorder.ts";
 
 const LAGOS_CUTOFF = "2026-10-18T23:59:59+01:00";
 const CUTOFF_EPOCH = Date.parse(LAGOS_CUTOFF); // 1792364399000

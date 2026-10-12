@@ -4,7 +4,7 @@ import {
   sanitizePhoneNumber,
   normalizeNigerianPhone,
   customerDetailsSchema,
-} from "./customer.ts";
+} from "../src/lib/validation/customer.ts";
 
 test("sanitizePhoneNumber strips spaces, hyphens, dots, and parentheses", () => {
   assert.strictEqual(sanitizePhoneNumber(" +234 (803) 123-4567 "), "+2348031234567");

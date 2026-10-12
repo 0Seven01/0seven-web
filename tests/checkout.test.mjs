@@ -6,7 +6,7 @@ import {
   WhatsAppCheckout,
   getWhatsAppNumber,
   UNAMBIGUOUS_ALPHABET,
-} from "./checkout.ts";
+} from "../src/lib/checkout.ts";
 
 test("generateOrderReference generates standard 0S-PO- prefix with 6 characters", () => {
   const ref = generateOrderReference();

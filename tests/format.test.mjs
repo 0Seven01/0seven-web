@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { formatNaira, formatWhatsAppNumber } from "./format.ts";
+import { formatNaira, formatWhatsAppNumber } from "../src/lib/format.ts";
 
 test("formatNaira formats kobo into Nigerian Naira currency string", () => {
   assert.strictEqual(formatNaira(1500000), "₦15,000");

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sanitizePublicId, buildCloudinaryUrl, buildCloudinaryLqipUrl } from "./cloudinary.ts";
+import { sanitizePublicId, buildCloudinaryUrl, buildCloudinaryLqipUrl } from "../src/lib/cloudinary.ts";
 
 function formatQuantityAriaLabel(action, item) {
   const prefix = action === "increase" ? "Increase" : "Decrease";
