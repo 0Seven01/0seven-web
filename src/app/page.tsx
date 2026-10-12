@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { listCategories, listProducts } from "@/lib/catalog";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
@@ -22,9 +23,9 @@ export default async function HomePage() {
         <p className="text-lg text-[var(--color-text-secondary)] mb-8 max-w-2xl">
           Faith-inspired apparel made for the streets of Lagos and beyond.
         </p>
-        <a href="/shop">
+        <Link href="/shop">
           <Button variant="accent" size="lg">Shop Now</Button>
-        </a>
+        </Link>
       </section>
 
       {/* Categories */}
@@ -89,7 +90,7 @@ export default async function HomePage() {
       <section data-section="email-capture" className="py-20 px-4 bg-[var(--color-accent)] text-[var(--color-accent-fg)] text-center">
         <div className="max-w-xl mx-auto">
           <h2 className="text-3xl font-bold mb-4">Get 10% Off Your First Order</h2>
-          <p className="mb-8 opacity-90">Join the community. We'll send your discount straight to your inbox.</p>
+          <p className="mb-8 opacity-90">Join the community. We&apos;ll send your discount straight to your inbox.</p>
           <form className="flex flex-col sm:flex-row gap-3">
             <Input type="email" placeholder="your@email.com" required className="flex-1 bg-white text-black border-transparent" />
             <Button type="submit" variant="primary" className="bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]">Claim 10% Off</Button>
