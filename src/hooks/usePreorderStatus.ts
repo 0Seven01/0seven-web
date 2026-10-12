@@ -1,23 +1,21 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import { isPreorderOpen } from "@/config/preorder";
 
-const emptySubscribe = () => () => {};
-
-function getClientSnapshot(): boolean {
-  return isPreorderOpen(new Date());
-}
-
-function getServerSnapshot(): boolean {
-  return isPreorderOpen(new Date(), { override: null });
-}
-
 export function usePreorderStatus() {
-  const isOpen = useSyncExternalStore(
-    emptySubscribe,
-    getClientSnapshot,
-    getServerSnapshot
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional two-pass rendering for client URL override hydration
+    setIsMounted(true);
+  }, []);
+
+  const isOpen = isPreorderOpen(
+    new Date(),
+    isMounted ? undefined : { override: null }
   );
-  return { isOpen };
+
+  return { isOpen, isMounted };
 }
+
