@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { listCategories, listProducts } from "@/lib/catalog";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { EventPreorderSection } from "@/components/EventPreorderSection";
 import { Card } from "@/components/ui/Card";
 import { ProductCard } from "@/components/ProductCard";
 import { PreorderBanner } from "@/components/PreorderBanner";
@@ -88,17 +88,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Email capture */}
-      <section data-section="email-capture" className="py-20 px-4 bg-[var(--color-accent)] text-[var(--color-accent-fg)] text-center">
-        <div className="max-w-xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Get 10% Off Your First Order</h2>
-          <p className="mb-8 opacity-90">Join the community. We&apos;ll send your discount straight to your inbox.</p>
-          <form className="flex flex-col sm:flex-row gap-3">
-            <Input type="email" placeholder="your@email.com" required className="flex-1 bg-[var(--color-surface-raised)] text-[var(--color-text-primary)] border-transparent" />
-            <Button type="submit" variant="primary" className="bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]">Claim 10% Off</Button>
-          </form>
-        </div>
-      </section>
+      {/* Event Pre-order Section */}
+      <EventPreorderSection />
     </main>
   );
 }

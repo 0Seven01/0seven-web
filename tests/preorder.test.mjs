@@ -11,8 +11,8 @@ import {
   formatPreorderClosedMessage,
 } from "../src/config/preorder.ts";
 
-const LAGOS_CUTOFF = "2026-10-18T23:59:59+01:00";
-const CUTOFF_EPOCH = Date.parse(LAGOS_CUTOFF); // 1792364399000
+const LAGOS_CUTOFF = "2026-10-22T23:59:59+01:00";
+const CUTOFF_EPOCH = Date.parse(LAGOS_CUTOFF); // 1792709999000
 
 test("parseCutoffTimestamp parses valid ISO 8601 string with +01:00 offset to exact UTC epoch", () => {
   const parsed = parseCutoffTimestamp(LAGOS_CUTOFF);
@@ -21,7 +21,7 @@ test("parseCutoffTimestamp parses valid ISO 8601 string with +01:00 offset to ex
 });
 
 test("parseCutoffTimestamp parses valid UTC Z timestamp", () => {
-  const parsed = parseCutoffTimestamp("2026-10-18T22:59:59Z");
+  const parsed = parseCutoffTimestamp("2026-10-22T22:59:59Z");
   assert.strictEqual(parsed, CUTOFF_EPOCH);
 });
 
@@ -183,7 +183,7 @@ test("isProductionEnvironment respects explicit options flag", () => {
 
 test("formatPreorderCutoff formats Africa/Lagos cutoff date correctly", () => {
   const formatted = formatPreorderCutoff(LAGOS_CUTOFF);
-  assert.ok(formatted.includes("18 Oct"), `Expected date string to include "18 Oct", got: "${formatted}"`);
+  assert.ok(formatted.includes("22 Oct"), `Expected date string to include "22 Oct", got: "${formatted}"`);
   assert.ok(formatted.includes("11:59"), `Expected date string to include "11:59", got: "${formatted}"`);
   assert.strictEqual(formatted, formatPreorderCutoff(), "Default cutoff call must match explicit LAGOS_CUTOFF call");
 });
@@ -194,9 +194,9 @@ test("formatPreorderCutoff returns empty string for missing or invalid cutoff", 
   assert.strictEqual(formatPreorderCutoff("invalid-date"), "");
 });
 
-test("PREORDER_CONFIG.eventName is configured with Kairos Camp Meeting 2026 placeholder", () => {
+test("PREORDER_CONFIG.eventName is configured with Kairos Camp Meeting 2026 confirmed value", () => {
   assert.strictEqual(PREORDER_CONFIG.eventName.value, "Kairos Camp Meeting 2026");
-  assert.strictEqual(PREORDER_CONFIG.eventName.isPlaceholder, true);
+  assert.strictEqual(PREORDER_CONFIG.eventName.isPlaceholder, false);
 });
 
 test("formatPreorderEventDate formats event date to short Lagos format", () => {
@@ -231,7 +231,7 @@ test("isProductPreorderOpen respects campaign state and per-product preorderClos
 test("formatPreorderClosedMessage formats default closed announcement", () => {
   const msg = formatPreorderClosedMessage();
   assert.ok(msg.startsWith("Pre-orders for Kairos Camp Meeting 2026 closed on "));
-  assert.ok(msg.includes("18 Oct"));
+  assert.ok(msg.includes("22 Oct"));
   assert.ok(msg.endsWith(". Thank you!"));
 });
 
