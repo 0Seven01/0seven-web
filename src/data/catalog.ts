@@ -1,11 +1,19 @@
-import type { Category, Product, ProductImage, Variant, Size, Colour } from "../types/catalog.ts";
+import type { Category, Product, ProductImage, Variant, Size, Colour, Quality } from "../types/catalog.ts";
 import { PREORDER_CONFIG } from "../config/preorder.ts";
 import { buildCloudinaryLqipUrl } from "../lib/cloudinary.ts";
 
-const basePriceKobo = PREORDER_CONFIG.pricePerDesignKobo.value;
-if (!Number.isFinite(basePriceKobo) || basePriceKobo <= 0) {
-  throw new Error("[catalog] Invariant violated: pricePerDesignKobo must be a positive finite integer");
+const PRICING = PREORDER_CONFIG.pricing.value;
+for (const [tier, p] of Object.entries(PRICING)) {
+  if (
+    !Number.isFinite(p.paidKobo) ||
+    p.paidKobo <= 0 ||
+    !Number.isFinite(p.regularKobo) ||
+    p.regularKobo <= 0
+  ) {
+    throw new Error(`[catalog] Invariant violated: pricing.${tier} needs positive finite paidKobo and regularKobo`);
+  }
 }
+const QUALITIES = Object.keys(PRICING) as Quality[];
 
 export const CATEGORIES: Category[] = [
   { id: "cat-1", slug: "t-shirts",    name: "T-Shirts",    description: "Faith-inspired everyday tees.", sortOrder: 1, comingSoon: false, active: true },
@@ -38,6 +46,7 @@ function createVariants(
   ] as readonly string[] | undefined;
   const activeColourSlugs = new Set(activeColours ?? []);
   const sizes = PREORDER_CONFIG.sizes.value;
+  const sizeAvailability = PREORDER_CONFIG.sizeAvailability.value;
 
   for (const colourKey of availableColourKeys) {
     const colour = COLOUR_PALETTE[colourKey];
@@ -46,16 +55,22 @@ function createVariants(
     const colourCode = colourKey.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3);
 
     for (const size of sizes) {
-      variants.push({
-        id: `${productId}-${colourKey}-${size.toLowerCase()}`,
-        productId,
-        sku: `${prefix}-${colourCode}-${size}`,
-        size: size as Size,
-        colour,
-        priceKobo: basePriceKobo,
-        stock: null,
-        active: isColourActive,
-      });
+      const isSizeActive = sizeAvailability[size] === true;
+      for (const quality of QUALITIES) {
+        const price = PRICING[quality];
+        variants.push({
+          id: `${productId}-${colourKey}-${size.toLowerCase()}-${quality}`,
+          productId,
+          sku: `${prefix}-${colourCode}-${size}-${quality.toUpperCase().slice(0, 3)}`,
+          size: size as Size,
+          colour,
+          quality,
+          priceKobo: price.paidKobo,
+          compareAtKobo: price.regularKobo,
+          stock: null,
+          active: isColourActive && isSizeActive,
+        });
+      }
     }
   }
   return variants;

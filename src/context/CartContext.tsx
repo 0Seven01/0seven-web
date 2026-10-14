@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import type { CustomerDetails } from "@/types/customer";
+import type { Quality } from "@/types/catalog";
 import { generateOrderReference } from "@/lib/checkout";
 
 export interface CartItem {
@@ -19,6 +20,7 @@ export interface CartItem {
   slug: string;
   categorySlug: string;
   size: string;
+  quality: Quality;
   colourName: string;
   colourHex: string;
   priceKobo: number;

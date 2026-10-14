@@ -1,11 +1,17 @@
 import type { CartItem } from "../context/CartContext.tsx";
 import type { CustomerDetails } from "../types/customer.ts";
+import type { Quality } from "../types/catalog.ts";
 import { formatNaira } from "./format.ts";
 import {
   PREORDER_CONFIG,
   formatPreorderEventDate,
   isPreorderOpen,
 } from "../config/preorder.ts";
+
+export const QUALITY_LABELS: Record<Quality, string> = {
+  gold: "Premium Gold",
+  standard: "Standard Premium",
+};
 
 export const UNAMBIGUOUS_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
@@ -23,7 +29,12 @@ export interface BuildPreorderMessageParams {
   cart: CartItem[];
   customer?: CustomerDetails;
   reference: string;
-  paymentWording?: string;
+  payment?: {
+    bank: string;
+    accountNumber: string;
+    accountName: string;
+    receiptNote: string;
+  };
   eventDate?: string;
 }
 
@@ -31,12 +42,12 @@ export function buildPreorderMessage({
   cart,
   customer,
   reference,
-  paymentWording = PREORDER_CONFIG.paymentWording.value,
+  payment = PREORDER_CONFIG.payment.value,
   eventDate = formatPreorderEventDate() || "26 Oct",
 }: BuildPreorderMessageParams): string {
   const lines = cart.map(
     (item, i) =>
-      `${i + 1}. ${item.productName} — ${item.colourName}, ${item.size} ×${item.quantity} — ${formatNaira(item.priceKobo * item.quantity)}`
+      `${i + 1}. ${item.productName} (${QUALITY_LABELS[item.quality]}) — ${item.colourName}, ${item.size} ×${item.quantity} — ${formatNaira(item.priceKobo * item.quantity)}`
   );
 
   const total = cart.reduce(
@@ -58,7 +69,16 @@ export function buildPreorderMessage({
     );
   }
 
-  const paymentLine = paymentWording ? `Payment: ${paymentWording}` : "";
+  const paymentLines = payment
+    ? [
+        "",
+        "Payment — bank transfer:",
+        `Bank: ${payment.bank}`,
+        `Account Number: ${payment.accountNumber}`,
+        `Account Name: ${payment.accountName}`,
+        payment.receiptNote,
+      ]
+    : [];
 
   const parts = [
     `PRE-ORDER — Ref: ${reference}`,
@@ -67,14 +87,8 @@ export function buildPreorderMessage({
     "",
     `Total: ${formatNaira(total)}`,
     ...customerLines,
+    ...paymentLines,
   ];
-
-  if (paymentLine) {
-    if (!customer?.fullName) {
-      parts.push("");
-    }
-    parts.push(paymentLine);
-  }
 
   return parts.join("\n");
 }

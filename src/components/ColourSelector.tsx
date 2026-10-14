@@ -13,14 +13,16 @@ export function ColourSelector({
   selectedColour,
   onChange,
 }: ColourSelectorProps) {
-  const seen = new Set<string>();
-  const colours: Colour[] = [];
+  const seen = new Map<string, { colour: Colour; active: boolean }>();
   for (const v of variants) {
-    if (!seen.has(v.colour.name)) {
-      seen.add(v.colour.name);
-      colours.push(v.colour);
+    const entry = seen.get(v.colour.name);
+    if (!entry) {
+      seen.set(v.colour.name, { colour: v.colour, active: Boolean(v.active) });
+    } else if (v.active) {
+      entry.active = true;
     }
   }
+  const colours = Array.from(seen.values());
 
   return (
     <div>
@@ -28,16 +30,19 @@ export function ColourSelector({
         Colour — {selectedColour}
       </p>
       <div className="flex gap-2 flex-wrap">
-        {colours.map((colour) => {
+        {colours.map(({ colour, active }) => {
           const isSelected = colour.name === selectedColour;
           return (
             <button
               key={colour.name}
-              onClick={() => onChange(colour.name)}
-              aria-label={colour.name}
+              onClick={() => active && onChange(colour.name)}
+              disabled={!active}
+              aria-label={active ? colour.name : `${colour.name} (not available yet)`}
               aria-pressed={isSelected}
-              title={colour.name}
-              className="w-7 h-7 rounded-full cursor-pointer transition-all duration-150"
+              title={active ? colour.name : `${colour.name} — not available yet`}
+              className={`w-7 h-7 rounded-full transition-all duration-150 ${
+                active ? "cursor-pointer" : "cursor-not-allowed opacity-30"
+              }`}
               style={{
                 backgroundColor: colour.hex,
                 border: isSelected ? "3px solid var(--color-accent)" : "2px solid var(--color-border)",

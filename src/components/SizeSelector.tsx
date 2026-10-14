@@ -16,7 +16,17 @@ export function SizeSelector({
   selectedSize,
   onChange,
 }: SizeSelectorProps) {
-  const available = variants.filter((v) => v.colour.name === selectedColour);
+  const seen = new Map<string, { size: string; active: boolean }>();
+  for (const v of variants) {
+    if (v.colour.name !== selectedColour) continue;
+    const entry = seen.get(v.size);
+    if (!entry) {
+      seen.set(v.size, { size: v.size, active: Boolean(v.active) });
+    } else if (v.active) {
+      entry.active = true;
+    }
+  }
+  const sizes = Array.from(seen.values());
 
   return (
     <div>
@@ -32,20 +42,25 @@ export function SizeSelector({
         </Link>
       </div>
       <div className="flex gap-2 flex-wrap">
-        {available.map((v) => {
-          const isSelected = v.size === selectedSize;
+        {sizes.map(({ size, active }) => {
+          const isSelected = size === selectedSize;
           return (
             <button
-              key={v.size}
-              onClick={() => onChange(v.size)}
+              key={size}
+              onClick={() => active && onChange(size)}
+              disabled={!active}
               aria-pressed={isSelected}
-              className={`px-3.5 py-1.5 rounded-[4px] text-[0.85rem] cursor-pointer transition-all duration-150 ${
-                isSelected
-                  ? "border-2 border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-fg)] font-bold"
-                  : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium hover:border-[var(--color-accent)]"
+              aria-label={active ? size.replace("_", " ") : `${size.replace("_", " ")} (not available)`}
+              title={active ? undefined : "Not available"}
+              className={`px-3.5 py-1.5 rounded-[4px] text-[0.85rem] transition-all duration-150 ${
+                !active
+                  ? "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)] line-through opacity-40 cursor-not-allowed"
+                  : isSelected
+                  ? "border-2 border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-fg)] font-bold cursor-pointer"
+                  : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium hover:border-[var(--color-accent)] cursor-pointer"
               }`}
             >
-              {v.size.replace("_", " ")}
+              {size.replace("_", " ")}
             </button>
           );
         })}

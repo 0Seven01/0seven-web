@@ -15,7 +15,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const href = `/shop/${product.categorySlug}/${product.slug}`;
-  const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
+  const lowestVariant = product.variants.reduce(
+    (lo, v) => (v.priceKobo < lo.priceKobo ? v : lo),
+    product.variants[0]
+  );
+  const lowestPaid = lowestVariant?.priceKobo ?? 0;
+  const lowestRegular = lowestVariant?.compareAtKobo ?? 0;
   const { isOpen: campaignOpen } = usePreorderStatus();
   const isOpen = isProductPreorderOpen(product, campaignOpen);
 
@@ -72,7 +77,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
           {product.name}
         </p>
         <p className="text-[var(--color-text-primary)] font-bold text-[0.88rem] m-0">
-          {formatNaira(lowestPrice)}
+          <span className="text-[0.7rem] font-medium text-[var(--color-text-muted)]">From </span>
+          {formatNaira(lowestPaid)}
+          {lowestRegular > lowestPaid && (
+            <span className="ml-1.5 text-[0.72rem] font-medium text-[var(--color-text-muted)] line-through">
+              {formatNaira(lowestRegular)}
+            </span>
+          )}
         </p>
         <p className="text-[var(--color-text-muted)] text-[0.68rem] m-0 font-medium">
           {isOpen

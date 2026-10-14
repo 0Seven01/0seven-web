@@ -4,21 +4,27 @@ import { useState } from "react";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ColourSelector } from "@/components/ColourSelector";
 import { SizeSelector } from "@/components/SizeSelector";
+import { QualitySelector } from "@/components/QualitySelector";
+import { CustomColourRequest } from "@/components/CustomColourRequest";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { Badge } from "@/components/ui/Badge";
 import { formatNaira } from "@/lib/format";
 import { usePreorderStatus } from "@/hooks/usePreorderStatus";
 import { isProductPreorderOpen, formatPreorderEventDate } from "@/config/preorder";
-import type { Product, Variant } from "@/types/catalog";
+import type { Product, Variant, Quality } from "@/types/catalog";
 
 interface ProductInteractiveProps {
   product: Product;
 }
 
 export function ProductInteractive({ product }: ProductInteractiveProps) {
-  const firstColour = product.variants[0]?.colour.name ?? "";
+  const firstColour =
+    product.variants.find((v) => v.active)?.colour.name ??
+    product.variants[0]?.colour.name ??
+    "";
   const [selectedColour, setSelectedColour] = useState(firstColour);
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedQuality, setSelectedQuality] = useState<Quality>("standard");
 
   const handleColourChange = (colour: string) => {
     setSelectedColour(colour);
@@ -27,10 +33,19 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
 
   const selectedVariant: Variant | null =
     product.variants.find(
-      (v) => v.colour.name === selectedColour && v.size === selectedSize
+      (v) =>
+        v.colour.name === selectedColour &&
+        v.size === selectedSize &&
+        v.quality === selectedQuality
     ) ?? null;
 
-  const lowestPrice = Math.min(...product.variants.map((v) => v.priceKobo));
+  const qualityVariant = product.variants.find(
+    (v) => v.quality === selectedQuality
+  );
+  const paidKobo =
+    qualityVariant?.priceKobo ??
+    Math.min(...product.variants.map((v) => v.priceKobo));
+  const regularKobo = qualityVariant?.compareAtKobo ?? null;
   const activeSwatchHex = product.variants.find(
     (v) => v.colour.name === selectedColour
   )?.colour.hex;
@@ -69,8 +84,13 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
           </h1>
           <div className="flex items-baseline gap-3 flex-wrap">
             <p className="text-2xl font-bold text-[var(--color-accent)] m-0">
-              {formatNaira(lowestPrice)}
+              {formatNaira(paidKobo)}
             </p>
+            {regularKobo !== null && regularKobo > paidKobo && (
+              <span className="text-base text-[var(--color-text-muted)] line-through">
+                {formatNaira(regularKobo)}
+              </span>
+            )}
             {isProductOpen && eventDateFormatted && (
               <span className="text-xs text-[var(--color-text-muted)] font-medium">
                 • Ships for the {eventDateFormatted} event
@@ -85,11 +105,17 @@ export function ProductInteractive({ product }: ProductInteractiveProps) {
         <hr className="border-[var(--color-border)] w-full my-2" />
 
         <div className="flex flex-col gap-5">
+          <QualitySelector
+            variants={product.variants}
+            selectedQuality={selectedQuality}
+            onChange={setSelectedQuality}
+          />
           <ColourSelector
             variants={product.variants}
             selectedColour={selectedColour}
             onChange={handleColourChange}
           />
+          <CustomColourRequest productName={product.name} />
           <SizeSelector
             variants={product.variants}
             selectedColour={selectedColour}

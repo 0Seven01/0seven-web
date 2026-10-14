@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
+import { SOCIALS } from "@/config/socials";
+import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/SocialIcons";
 
 const LINKS = [
   { href: "/about",             label: "About" },
@@ -27,6 +29,35 @@ export function Footer() {
           <p className="text-[var(--color-text-muted)] text-[0.85rem] mt-2">
             Faith-inspired apparel from Lagos, Nigeria.
           </p>
+          <div className="flex items-center gap-3 mt-3">
+            <a
+              href={SOCIALS.instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="0Seven on Instagram"
+              className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors p-1"
+            >
+              <InstagramIcon className="w-5 h-5" />
+            </a>
+            <a
+              href={SOCIALS.tiktok.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="0Seven on TikTok"
+              className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors p-1"
+            >
+              <TikTokIcon className="w-5 h-5" />
+            </a>
+            <a
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "2347034306187"}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="0Seven on WhatsApp"
+              className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors p-1"
+            >
+              <WhatsAppIcon className="w-5 h-5" />
+            </a>
+          </div>
         </div>
 
         {/* Nav */}
