@@ -23,7 +23,7 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
   const isProductOpen = isProductPreorderOpen(product, campaignOpen);
 
   const handleAdd = () => {
-    if (!isProductOpen || !selectedVariant) return;
+    if (!isProductOpen || !selectedVariant || !selectedVariant.active) return;
     const matchingImage = product.images.find(
       (img) => img.colourName?.toLowerCase() === selectedVariant.colour.name.toLowerCase()
     );
@@ -34,6 +34,7 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
       slug: product.slug,
       categorySlug: product.categorySlug,
       size: selectedVariant.size,
+      quality: selectedVariant.quality,
       colourName: selectedVariant.colour.name,
       colourHex: selectedVariant.colour.hex,
       priceKobo: selectedVariant.priceKobo,
@@ -44,7 +45,7 @@ export function AddToCartButton({ product, selectedVariant }: AddToCartButtonPro
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const disabled = !isProductOpen || !selectedVariant;
+  const disabled = !isProductOpen || !selectedVariant || !selectedVariant.active;
 
   let buttonText = "Add to Cart — Pre-order";
   if (!isProductOpen) {

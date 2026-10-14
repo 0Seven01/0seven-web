@@ -13,10 +13,20 @@ export function confirmed<T>(value: T, label: string): PlaceholderValue<T> {
 }
 
 export const PREORDER_CONFIG = {
-  pricePerDesignKobo: placeholder(1500000, "Price per shirt (kobo)"),
-  sizes: placeholder(
+  pricing: confirmed(
+    {
+      gold: { paidKobo: 1800000, regularKobo: 2300000 },
+      standard: { paidKobo: 1000000, regularKobo: 1200000 },
+    },
+    "Per-quality pre-order pricing (paid + struck regular), kobo"
+  ),
+  sizes: confirmed(
     ["S", "M", "L", "XL", "XXL"] as const,
-    "Available shirt sizes"
+    "Shirt sizes shown (unavailable ones greyed, not removed)"
+  ),
+  sizeAvailability: confirmed(
+    { S: false, M: true, L: true, XL: true, XXL: false } as Record<string, boolean>,
+    "Which sizes are available to pre-order (D-16: M/L/XL)"
   ),
   coloursByDesign: placeholder(
     {
@@ -33,9 +43,14 @@ export const PREORDER_CONFIG = {
   ),
   eventDate: confirmed("2026-10-26", "Event date (YYYY-MM-DD)"),
   eventName: placeholder("Kairos Camp Meeting 2026", "Public event name"),
-  paymentWording: placeholder(
-    "Full payment by bank transfer after confirmation",
-    "Payment instructions copy"
+  payment: confirmed(
+    {
+      bank: "Kuda MFB",
+      accountNumber: "3002770131",
+      accountName: "OLUWATOBILOBA FAGOYINBO",
+      receiptNote: "Please send your payment receipt here on WhatsApp.",
+    },
+    "Bank transfer details + receipt instruction (D-15)"
   ),
   pickupDelivery: placeholder(
     {

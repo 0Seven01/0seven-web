@@ -8,7 +8,9 @@ import {
   WhatsAppCheckout,
   buildPreorderMessage,
   getWhatsAppNumber,
+  QUALITY_LABELS,
 } from "@/lib/checkout";
+import { SOCIALS } from "@/config/socials";
 import { copyToClipboard } from "@/lib/clipboard";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -224,7 +226,7 @@ export default function CartPage() {
                         <Link href={productHref} className="hover:underline">
                           <h3 className="font-semibold text-base md:text-lg truncate text-[var(--color-text-primary)]">{item.productName}</h3>
                         </Link>
-                        <p className="text-[var(--color-text-secondary)] text-sm">{item.colourName}, {item.size}</p>
+                        <p className="text-[var(--color-text-secondary)] text-sm">{QUALITY_LABELS[item.quality]} · {item.colourName}, {item.size}</p>
                         <p className="font-bold text-[var(--color-text-primary)] mt-1">{formatNaira(item.priceKobo)}</p>
                       </div>
                       <div className="flex items-center justify-between md:justify-end gap-3 md:gap-4 shrink-0">
@@ -283,12 +285,12 @@ export default function CartPage() {
                   <p className="m-0">{checkoutError}</p>
                   {checkoutError.includes("Instagram") && (
                     <a
-                      href="https://instagram.com/0seven"
+                      href={SOCIALS.instagram.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block underline font-semibold text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] pt-0.5"
                     >
-                      Contact @0seven on Instagram →
+                      Contact @{SOCIALS.instagram.handle} on Instagram →
                     </a>
                   )}
                 </div>
@@ -369,12 +371,12 @@ export default function CartPage() {
                             Ordering is temporarily unavailable — please contact us on Instagram.
                           </p>
                           <a
-                            href="https://instagram.com/0seven"
+                            href={SOCIALS.instagram.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block underline text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold"
                           >
-                            @0seven on Instagram →
+                            @{SOCIALS.instagram.handle} on Instagram →
                           </a>
                         </div>
                       )}
