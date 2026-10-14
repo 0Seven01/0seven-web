@@ -41,7 +41,7 @@ function CountdownDisplay({ timeLeft }: { timeLeft: TimeLeft }) {
   return (
     <span
       aria-label={`${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes, ${timeLeft.seconds} seconds`}
-      className="inline-flex items-center gap-1 font-mono font-bold tracking-wider text-xs md:text-sm bg-[var(--color-bg)] text-[var(--color-text-primary)] px-2.5 py-1 rounded border border-[var(--color-border)] select-none shadow-xs"
+      className="inline-flex items-center gap-1 font-mono font-bold tracking-wider text-xs md:text-sm bg-[var(--color-bg)] text-[var(--color-text-primary)] px-2.5 py-1 rounded border border-[var(--color-border)] select-none shadow-xs shrink-0 whitespace-nowrap"
     >
       <span>{pad(timeLeft.days)}d</span>
       <span className="opacity-40">:</span>
@@ -49,7 +49,7 @@ function CountdownDisplay({ timeLeft }: { timeLeft: TimeLeft }) {
       <span className="opacity-40">:</span>
       <span>{pad(timeLeft.minutes)}m</span>
       <span className="opacity-40">:</span>
-      <span className="text-[var(--color-accent)]">{pad(timeLeft.seconds)}s</span>
+      <span className="text-[var(--color-accent)] shrink-0">{pad(timeLeft.seconds)}s</span>
     </span>
   );
 }
