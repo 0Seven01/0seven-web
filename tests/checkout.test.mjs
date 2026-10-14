@@ -41,6 +41,7 @@ test("buildPreorderMessage creates exact formatted message snapshot for single i
       slug: "forgiven",
       categorySlug: "t-shirts",
       size: "L",
+      quality: "standard",
       colourName: "Black",
       colourHex: "#000000",
       priceKobo: 1500000,
@@ -59,21 +60,25 @@ test("buildPreorderMessage creates exact formatted message snapshot for single i
     cart: mockCart,
     customer: mockCustomer,
     reference: "0S-PO-H7K93A",
-    paymentWording: "Full payment by bank transfer after confirmation",
     eventDate: "26 Oct",
   });
 
   const expected = [
     "PRE-ORDER — Ref: 0S-PO-H7K93A",
     "",
-    "1. Forgiven — Black, L ×1 — ₦15,000",
+    "1. Forgiven (Standard Premium) — Black, L ×1 — ₦15,000",
     "",
     "Total: ₦15,000",
     "",
     "Name: Tobi Continental",
     "Phone: 08012345678",
     "Collection: Pickup at 26 Oct event",
-    "Payment: Full payment by bank transfer after confirmation",
+    "",
+    "Payment — bank transfer:",
+    "Bank: Kuda MFB",
+    "Account Number: 3002770131",
+    "Account Name: OLUWATOBILOBA FAGOYINBO",
+    "Please send your payment receipt here on WhatsApp.",
   ].join("\n");
 
   assert.strictEqual(message, expected);
@@ -88,6 +93,7 @@ test("buildPreorderMessage creates exact formatted message snapshot for multi-it
       slug: "forgiven",
       categorySlug: "t-shirts",
       size: "M",
+      quality: "standard",
       colourName: "White",
       colourHex: "#FFFFFF",
       priceKobo: 1500000,
@@ -101,6 +107,7 @@ test("buildPreorderMessage creates exact formatted message snapshot for multi-it
       slug: "justified",
       categorySlug: "t-shirts",
       size: "XL",
+      quality: "gold",
       colourName: "Green",
       colourHex: "#013920",
       priceKobo: 1500000,
@@ -120,22 +127,26 @@ test("buildPreorderMessage creates exact formatted message snapshot for multi-it
     cart: mockCart,
     customer: mockCustomer,
     reference: "0S-PO-7B8N4X",
-    paymentWording: "Full payment by bank transfer after confirmation",
     eventDate: "26 Oct",
   });
 
   const expected = [
     "PRE-ORDER — Ref: 0S-PO-7B8N4X",
     "",
-    "1. Forgiven — White, M ×2 — ₦30,000",
-    "2. Justified — Green, XL ×1 — ₦15,000",
+    "1. Forgiven (Standard Premium) — White, M ×2 — ₦30,000",
+    "2. Justified (Premium Gold) — Green, XL ×1 — ₦15,000",
     "",
     "Total: ₦45,000",
     "",
     "Name: Iseoluwa Adeleke",
     "Phone: 08098765432",
     "Collection: Lagos Delivery (14 Victoria Island, Lagos)",
-    "Payment: Full payment by bank transfer after confirmation",
+    "",
+    "Payment — bank transfer:",
+    "Bank: Kuda MFB",
+    "Account Number: 3002770131",
+    "Account Name: OLUWATOBILOBA FAGOYINBO",
+    "Please send your payment receipt here on WhatsApp.",
   ].join("\n");
 
   assert.strictEqual(message, expected);
@@ -150,6 +161,7 @@ test("buildPreorderMessage safely formats message when customer details are omit
       slug: "im-righteous",
       categorySlug: "t-shirts",
       size: "S",
+      quality: "standard",
       colourName: "Black",
       colourHex: "#000000",
       priceKobo: 1500000,
@@ -166,11 +178,15 @@ test("buildPreorderMessage safely formats message when customer details are omit
   const expected = [
     "PRE-ORDER — Ref: 0S-PO-99XW22",
     "",
-    "1. I'm Righteous — Black, S ×1 — ₦15,000",
+    "1. I'm Righteous (Standard Premium) — Black, S ×1 — ₦15,000",
     "",
     "Total: ₦15,000",
     "",
-    "Payment: Full payment by bank transfer after confirmation",
+    "Payment — bank transfer:",
+    "Bank: Kuda MFB",
+    "Account Number: 3002770131",
+    "Account Name: OLUWATOBILOBA FAGOYINBO",
+    "Please send your payment receipt here on WhatsApp.",
   ].join("\n");
 
   assert.strictEqual(message, expected);
@@ -283,6 +299,7 @@ test("WhatsAppCheckout constructs and URL-encodes complete wa.me link with recov
       slug: "god-is-always-in-control",
       categorySlug: "t-shirts",
       size: "M",
+      quality: "gold",
       colourName: "Navy",
       colourHex: "#000080",
       priceKobo: 1500000,
@@ -310,7 +327,7 @@ test("WhatsAppCheckout constructs and URL-encodes complete wa.me link with recov
     const queryText = new URL(openedUrl).searchParams.get("text");
     assert.ok(queryText.includes("PRE-ORDER — Ref: 0S-PO-REF123"));
     assert.ok(
-      queryText.includes("1. God is always in Control — Navy, M ×1 — ₦15,000")
+      queryText.includes("1. God is always in Control (Premium Gold) — Navy, M ×1 — ₦15,000")
     );
     assert.ok(queryText.includes("Name: Test Buyer & Co."));
     assert.ok(
@@ -318,10 +335,9 @@ test("WhatsAppCheckout constructs and URL-encodes complete wa.me link with recov
         "Collection: Lagos Delivery (Flat 2, O'Connor Street, Lagos)"
       )
     );
+    assert.ok(queryText.includes("Bank: Kuda MFB"));
     assert.ok(
-      queryText.includes(
-        "Payment: Full payment by bank transfer after confirmation"
-      )
+      queryText.includes("Please send your payment receipt here on WhatsApp.")
     );
   } finally {
     if (originalDescriptor) {
@@ -341,6 +357,7 @@ test("WhatsAppCheckout fails closed when pre-orders are closed", async () => {
       slug: "test-product",
       categorySlug: "t-shirts",
       size: "M",
+      quality: "standard",
       colourName: "Black",
       colourHex: "#000000",
       priceKobo: 1500000,
@@ -541,6 +558,3 @@ test("WhatsAppCheckout fails closed when WhatsApp number is malformed or placeho
     Object.defineProperty(globalThis.navigator, "onLine", originalDescriptor);
   }
 });
-
-
-
