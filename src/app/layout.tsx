@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { OfflineQueueProvider } from "@/components/OfflineQueueProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { EventPopupModal } from "@/components/EventPopupModal";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -107,6 +108,7 @@ export default function RootLayout({
                   {children}
                 </div>
                 <Footer />
+                <EventPopupModal />
               </OfflineQueueProvider>
             </CartProvider>
           </ErrorBoundary>

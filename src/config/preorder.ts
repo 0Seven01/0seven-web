@@ -37,12 +37,18 @@ export const PREORDER_CONFIG = {
     },
     "Colours for sale per design"
   ),
-  cutoff: placeholder(
-    "2026-10-18T23:59:59+01:00",
+  startDate: confirmed(
+    "2026-10-15T00:00:00+01:00",
+    "Pre-order campaign start timestamp (Africa/Lagos)"
+  ),
+  cutoff: confirmed(
+    "2026-10-22T23:59:59+01:00",
     "Pre-order cutoff timestamp (Africa/Lagos)"
   ),
   eventDate: confirmed("2026-10-26", "Event date (YYYY-MM-DD)"),
-  eventName: placeholder("Kairos Camp Meeting 2026", "Public event name"),
+  eventName: confirmed("Kairos Camp Meeting 2026", "Public event name"),
+  flyerPublicId: confirmed("events/preorder-drop-1-flyer", "Cloudinary flyer public ID"),
+  flyerFallbackUrl: confirmed("/images/preorder-drop-1-flyer.webp", "Local fallback flyer asset"),
   payment: confirmed(
     {
       bank: "Kuda MFB",
@@ -163,7 +169,6 @@ export function isPreorderOpen(
     if (options?.override !== undefined) {
       if (options.override === "closed") return false;
       if (options.override === "open") return true;
-      // options.override === null: explicitly suppress dev override, evaluate cutoff
     } else {
       const urlOverride = getDevOverride();
       if (urlOverride === "closed") return false;
@@ -193,6 +198,32 @@ export function isPreorderOpen(
   return now.getTime() < closeEpoch;
 }
 
+export type CampaignStage = "upcoming" | "open" | "closed";
+
+export function getCampaignStage(
+  now: Date = new Date(),
+  options?: PreorderCheckOptions
+): CampaignStage {
+  if (!isPreorderOpen(now, options)) {
+    return "closed";
+  }
+
+  const startEpoch = parseCutoffTimestamp(PREORDER_CONFIG.startDate.value);
+  const currentTime = now.getTime();
+
+  if (startEpoch !== null && currentTime < startEpoch) {
+    const isProd = isProductionEnvironment(options);
+    if (!isProd) {
+      if (options?.override === "open" || getDevOverride() === "open") {
+        return "open";
+      }
+    }
+    return "upcoming";
+  }
+
+  return "open";
+}
+
 export function hasActivePlaceholders(): boolean {
   return Object.values(PREORDER_CONFIG).some((item) => item.isPlaceholder);
 }
@@ -211,6 +242,20 @@ export function getPlaceholderAudit(): Array<{
     }));
 }
 
+export function formatPreorderStartDate(startDate?: string | null): string {
+  const rawStart =
+    startDate !== undefined ? startDate : PREORDER_CONFIG.startDate.value;
+  const epoch = parseCutoffTimestamp(rawStart);
+  if (epoch === null) return "";
+
+  const date = new Date(epoch);
+  return new Intl.DateTimeFormat("en-NG", {
+    timeZone: "Africa/Lagos",
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
 export function formatPreorderCutoff(cutoff?: string | null): string {
   const rawCutoff =
     cutoff !== undefined ? cutoff : PREORDER_CONFIG.cutoff.value;
@@ -227,6 +272,19 @@ export function formatPreorderCutoff(cutoff?: string | null): string {
     minute: "numeric",
     hour12: true,
   }).format(date);
+}
+
+export function parseEventTimestamp(eventDate?: string | null): number | null {
+  const rawDate =
+    eventDate !== undefined ? eventDate : PREORDER_CONFIG.eventDate.value;
+  if (!rawDate || typeof rawDate !== "string" || !rawDate.trim()) return null;
+
+  const trimmed = rawDate.trim();
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  const parseTarget = isoMatch ? `${trimmed}T00:00:00+01:00` : trimmed;
+  const epoch = Date.parse(parseTarget);
+  if (Number.isNaN(epoch)) return null;
+  return epoch;
 }
 
 export function formatPreorderEventDate(eventDate?: string | null): string {

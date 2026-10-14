@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { isPreorderOpen } from "@/config/preorder";
+import { getCampaignStage, isPreorderOpen, type CampaignStage } from "@/config/preorder";
 
 export function usePreorderStatus() {
   const [isMounted, setIsMounted] = useState(false);
@@ -11,11 +11,16 @@ export function usePreorderStatus() {
     setIsMounted(true);
   }, []);
 
-  const isOpen = isPreorderOpen(
+  const stage: CampaignStage = getCampaignStage(
     new Date(),
     isMounted ? undefined : { override: null }
   );
 
-  return { isOpen, isMounted };
+  const isOpen = stage === "open";
+  const isUpcoming = stage === "upcoming";
+  const isClosed = stage === "closed";
+
+  return { isOpen, isUpcoming, isClosed, stage, isMounted };
 }
+
 
