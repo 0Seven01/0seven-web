@@ -96,12 +96,15 @@ export function EventPopupModal() {
     }
   }, [isMounted, stage, pathname]);
 
-  // Lock body scroll when modal is open
+  // Lock document and body scroll when modal is open
   useEffect(() => {
     if (!isOpen) return;
 
-    const originalOverflow = document.body.style.overflow;
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -111,7 +114,8 @@ export function EventPopupModal() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, dismiss]);
@@ -137,14 +141,14 @@ export function EventPopupModal() {
       aria-modal="true"
       aria-labelledby="event-modal-title"
       aria-describedby="event-modal-desc"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs transition-opacity"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs transition-opacity overscroll-contain touch-none"
       onClick={(e) => {
         if (e.target === e.currentTarget) dismiss();
       }}
     >
       <div
         ref={dialogRef}
-        className="relative w-full max-w-[calc(100vw-2rem)] max-w-sm md:max-w-md max-h-[92vh] overflow-y-auto bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col items-center"
+        className="relative w-full max-w-[calc(100vw-2rem)] max-w-sm md:max-w-md max-h-[92vh] overflow-y-auto overscroll-contain touch-auto bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col items-center"
       >
         {/* Flyer Graphic — edge-to-edge format matching banner asset */}
         <div className="relative w-full overflow-hidden bg-black/5">
