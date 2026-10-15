@@ -26,8 +26,9 @@ export function Footer() {
           >
             <Logo className="h-7 w-auto" />
           </Link>
-          <p className="text-[var(--color-text-muted)] text-[0.85rem] mt-2">
-            Faith-inspired apparel from Lagos, Nigeria.
+          <p className="text-[var(--color-text-muted)] text-[0.85rem] mt-2 max-w-sm">
+            Faith-inspired apparel. Every design, a revelation. Every wear, a
+            reminder of His promises.
           </p>
           <div className="flex items-center gap-3 mt-3">
             <a
