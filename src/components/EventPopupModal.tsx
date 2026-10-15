@@ -130,7 +130,7 @@ export function EventPopupModal() {
   const startEpoch = parseCutoffTimestamp(PREORDER_CONFIG.startDate.value);
   const cutoffEpoch = parseCutoffTimestamp(PREORDER_CONFIG.cutoff.value);
   const targetEpoch = isUpcoming ? startEpoch : cutoffEpoch;
-  const currentNow = nowMs ?? (isMounted ? Date.now() : 0);
+  const currentNow = nowMs ?? 0;
   const timeLeft = nowMs !== null ? calculateTimeLeft(targetEpoch, currentNow) : null;
   const formattedStart = formatPreorderStartDate();
   const formattedCutoff = formatPreorderCutoff();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCampaignStage, isPreorderOpen, type CampaignStage } from "@/config/preorder";
+import { getCampaignStage, type CampaignStage } from "@/config/preorder";
 
 export function usePreorderStatus() {
   const [isMounted, setIsMounted] = useState(false);

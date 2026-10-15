@@ -53,7 +53,7 @@ function CountdownDisplay({ timeLeft }: { timeLeft: TimeLeft }) {
 }
 
 export function PreorderBanner() {
-  const { stage, isMounted } = usePreorderStatus();
+  const { stage } = usePreorderStatus();
   const [nowMs, setNowMs] = useState<number | null>(null);
 
   const eventName = PREORDER_CONFIG.eventName.value;
@@ -79,7 +79,7 @@ export function PreorderBanner() {
   const isClosed = stage === "closed";
 
   // Determine active countdown target based on current stage
-  const currentNow = nowMs ?? (isMounted ? Date.now() : 0);
+  const currentNow = nowMs ?? 0;
   const targetEpoch = isUpcoming ? startEpoch : isOpen ? cutoffEpoch : eventEpoch;
   const timeLeft = nowMs !== null ? calculateTimeLeft(targetEpoch, currentNow) : null;
   const isPostEvent = isClosed && eventEpoch !== null && currentNow >= eventEpoch;
