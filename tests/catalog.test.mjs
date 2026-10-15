@@ -54,7 +54,7 @@ test("listProducts filters out products for inactive categories", async () => {
   assert.deepStrictEqual(hoodiesProducts, []);
 
   const tshirtProducts = await listProducts("t-shirts");
-  assert.strictEqual(tshirtProducts.length, 4);
+  assert.strictEqual(tshirtProducts.length, 5);
 });
 
 test("getProduct fails closed with null if category is inactive", async () => {
@@ -65,3 +65,19 @@ test("getProduct fails closed with null if category is inactive", async () => {
   assert.ok(activeResult !== null);
   assert.strictEqual(activeResult?.slug, "forgiven");
 });
+
+test("getProduct returns Anegkletos product with active white variants and scripture", async () => {
+  const anegkletos = await getProduct("t-shirts", "anegkletos");
+  assert.ok(anegkletos !== null);
+  assert.strictEqual(anegkletos?.name, "Anegkletos");
+  assert.strictEqual(anegkletos?.slug, "anegkletos");
+  assert.strictEqual(anegkletos?.scriptureRef, "Col 1:22");
+  assert.strictEqual(anegkletos?.images.length, 1);
+  assert.strictEqual(anegkletos?.images[0].url, "anegkletos--white-studio");
+  assert.strictEqual(anegkletos?.images[0].colourName, "White");
+  assert.strictEqual(anegkletos?.variants.length, 10);
+  const activeVariants = anegkletos?.variants.filter((v) => v.active);
+  assert.strictEqual(activeVariants?.length, 6);
+  assert.ok(activeVariants?.every((v) => v.colour.name === "White"));
+});
+
