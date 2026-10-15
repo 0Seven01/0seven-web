@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     template: "%s | 0Seven",
   },
   description:
-    "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+    "Faith-inspired apparel. Every design, a revelation. Every wear, a reminder of His promises. Order on WhatsApp.",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -65,14 +65,14 @@ export const metadata: Metadata = {
     siteName: "0Seven",
     title: "0Seven — Faith-Inspired Apparel",
     description:
-      "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+      "Faith-inspired apparel. Every design, a revelation. Every wear, a reminder of His promises. Order on WhatsApp.",
     locale: "en_NG",
   },
   twitter: {
     card: "summary_large_image",
     title: "0Seven — Faith-Inspired Apparel",
     description:
-      "Nigerian DTC faith-inspired apparel. T-Shirts, Roundnecks, Sweatshirts, Hoodies, Caps. Order on WhatsApp.",
+      "Faith-inspired apparel. Every design, a revelation. Every wear, a reminder of His promises. Order on WhatsApp.",
   },
   robots: {
     index: true,

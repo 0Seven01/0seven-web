@@ -10,7 +10,7 @@ import { PreorderBanner } from "@/components/PreorderBanner";
 export const metadata: Metadata = {
   title: "0Seven — Faith-Inspired Apparel",
   description:
-    "Nigerian DTC faith-inspired apparel. T-Shirts. Order on WhatsApp.",
+    "Faith-inspired apparel. Every design, a revelation. Every wear, a reminder of His promises. Order on WhatsApp.",
 };
 
 export default async function HomePage() {
@@ -69,11 +69,15 @@ export default async function HomePage() {
       {/* Brand story */}
       <section data-section="brand-story" className="py-20 px-4 bg-[var(--color-surface)] text-center">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">More Than Clothing</h2>
-          <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed">
-            0Seven was born out of faith and community. Every piece carries a
-            scripture — a reminder of who you are and whose you are.
+          <h2 className="text-3xl font-bold mb-6">More Than Apparel</h2>
+          <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed max-w-2xl mx-auto mb-8">
+            Every 0Seven piece is designed around a revelation drawn from
+            scriptures — turning garments into daily declarations of identity,
+            confidence, and authority.
           </p>
+          <Link href="/about">
+            <Button variant="secondary">Read Our Story →</Button>
+          </Link>
         </div>
       </section>
 
