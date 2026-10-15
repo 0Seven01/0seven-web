@@ -16,7 +16,7 @@ export const PREORDER_CONFIG = {
   pricing: confirmed(
     {
       gold: { paidKobo: 1800000, regularKobo: 2300000 },
-      standard: { paidKobo: 1000000, regularKobo: 1200000 },
+      standard: { paidKobo: 1050000, regularKobo: 1200000 },
     },
     "Per-quality pre-order pricing (paid + struck regular), kobo"
   ),
