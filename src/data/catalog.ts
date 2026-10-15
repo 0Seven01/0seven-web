@@ -167,4 +167,19 @@ export const PRODUCTS: Product[] = [
     ],
     variants: createVariants("prod-justified", "JST", ["black", "green", "white"], "justified"),
   },
+  {
+    id: "prod-anegkletos",
+    slug: "anegkletos",
+    name: "Anegkletos",
+    categorySlug: "t-shirts",
+    featured: true,
+    active: true,
+    description: "Faith-inspired heavyweight graphic tee featuring bold 'ANEGKLETOS' typography, Colossians 1:22 scripture reference, and gavel-breaking-handcuffs motif declaring blameless standing.",
+    scriptureRef: "Col 1:22",
+    images: [
+      createImage("img-ak-1", "anegkletos--white-studio", "Anegkletos", "White", 1),
+    ],
+    variants: createVariants("prod-anegkletos", "AKL", ["white"], "anegkletos"),
+  },
 ];
+
