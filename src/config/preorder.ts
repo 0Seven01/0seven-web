@@ -34,7 +34,7 @@ export const PREORDER_CONFIG = {
       "god-is-always-in-control": ["black", "navy", "green", "lime"],
       "im-righteous": ["black", "burgundy"],
       justified: ["black", "green", "white"],
-      anegkletos: ["white"],
+      anegkletos: ["burgundy", "white", "brown", "black"],
     },
     "Colours for sale per design"
   ),

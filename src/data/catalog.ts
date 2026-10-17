@@ -27,6 +27,7 @@ const COLOUR_PALETTE: Record<string, Colour> = {
   black: { name: "Black", hex: "#111110" },
   white: { name: "White", hex: "#FAFAF8" },
   blue: { name: "Blue", hex: "#1E3A8A" },
+  brown: { name: "Brown", hex: "#5C3A2E" },
   burgundy: { name: "Burgundy", hex: "#5B1424" },
   "neon-green": { name: "Neon green", hex: "#70F250" },
   green: { name: "Green", hex: "#013920" },
@@ -177,9 +178,13 @@ export const PRODUCTS: Product[] = [
     description: "Faith-inspired heavyweight graphic tee featuring bold 'ANEGKLETOS' typography, Colossians 1:22 scripture reference, and gavel-breaking-handcuffs motif declaring blameless standing.",
     scriptureRef: "Col 1:22",
     images: [
-      createImage("img-ak-1", "anegkletos--white-studio", "Anegkletos", "White", 1),
+      createImage("img-ak-1", "anegkletos--burgundy-model", "Anegkletos", "Burgundy", 1),
+      createImage("img-ak-2", "anegkletos--white-model", "Anegkletos", "White", 2),
+      createImage("img-ak-3", "anegkletos--brown-model", "Anegkletos", "Brown", 3),
+      createImage("img-ak-4", "anegkletos--black-model", "Anegkletos", "Black", 4),
+      createImage("img-ak-5", "anegkletos--white-studio", "Anegkletos", "White", 5),
     ],
-    variants: createVariants("prod-anegkletos", "AKL", ["white"], "anegkletos"),
+    variants: createVariants("prod-anegkletos", "AKL", ["burgundy", "white", "brown", "black"], "anegkletos"),
   },
 ];
 
