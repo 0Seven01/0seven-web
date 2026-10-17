@@ -66,18 +66,19 @@ test("getProduct fails closed with null if category is inactive", async () => {
   assert.strictEqual(activeResult?.slug, "forgiven");
 });
 
-test("getProduct returns Anegkletos product with active white variants and scripture", async () => {
+test("getProduct returns Anegkletos product with active variants across 4 colours and scripture", async () => {
   const anegkletos = await getProduct("t-shirts", "anegkletos");
   assert.ok(anegkletos !== null);
   assert.strictEqual(anegkletos?.name, "Anegkletos");
   assert.strictEqual(anegkletos?.slug, "anegkletos");
   assert.strictEqual(anegkletos?.scriptureRef, "Col 1:22");
-  assert.strictEqual(anegkletos?.images.length, 1);
-  assert.strictEqual(anegkletos?.images[0].url, "anegkletos--white-studio");
-  assert.strictEqual(anegkletos?.images[0].colourName, "White");
-  assert.strictEqual(anegkletos?.variants.length, 10);
+  assert.strictEqual(anegkletos?.images.length, 5);
+  assert.strictEqual(anegkletos?.images[0].url, "anegkletos--burgundy-model");
+  assert.strictEqual(anegkletos?.images[0].colourName, "Burgundy");
+  assert.strictEqual(anegkletos?.variants.length, 40);
   const activeVariants = anegkletos?.variants.filter((v) => v.active);
-  assert.strictEqual(activeVariants?.length, 6);
-  assert.ok(activeVariants?.every((v) => v.colour.name === "White"));
+  assert.strictEqual(activeVariants?.length, 24);
+  const activeColours = new Set(activeVariants?.map((v) => v.colour.name));
+  assert.deepStrictEqual(Array.from(activeColours).sort(), ["Black", "Brown", "Burgundy", "White"]);
 });
 
